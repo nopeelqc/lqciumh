@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iumhcute</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-pink-100 text-gray-800 font-sans">
+  <!-- Login Page -->
+  <div id="login-page" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <h1 class="text-3xl font-bold text-pink-600 text-center mb-6">Đăng Nhập</h1>
+      <div class="space-y-4">
+        <input id="username" type="text" placeholder="Tên đăng nhập" oninput="updateUsername()" class="w-full p-2 border rounded">
+        <input id="password" type="password" placeholder="Mật khẩu" oninput="updatePassword()" class="w-full p-2 border rounded">
+        <button onclick="login()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Đăng Nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Success Page -->
+  <div id="success-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Đăng nhập thành công!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
+    </div>
+  </div>
+
+  <!-- Task Completion Success Page -->
+  <div id="task-success-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 id="task-success-title" class="text-3xl font-bold text-pink-600 mb-4">Chưa hoàn thành</h1>
+      <p id="task-success-desc" class="text-gray-700">Đang gửi yêu cầu phê duyệt...</p>
+    </div>
+  </div>
+
+  <!-- Task Already Completed Page -->
+  <div id="task-already-completed-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm vụ đã hoàn thành!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
+    </div>
+  </div>
+
+  <!-- Task Pending Page -->
+  <div id="task-pending-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm vụ đang chờ phê duyệt!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
+    </div>
+  </div>
+
+  <!-- Main Page -->
+  <div id="main-page" class="hidden min-h-screen flex flex-col items-center">
+    <!-- Header -->
+    <div class="bg-pink-600 text-white w-full py-4 text-center">
+      <h1 class="text-4xl font-bold">Chúng Mình</h1>
+    </div>
+
+    <!-- Clock and Days Together -->
+    <div class="my-8 text-center">
+      <div id="clock" class="text-5xl font-bold text-pink-600"></div>
+      <div id="days-together" class="text-2xl mt-4 text-gray-700"></div>
+    </div>
+
+    <!-- Store -->
+    <div class="w-full max-w-2xl p-4">
+      <h2 class="text-3xl font-bold text-pink-600 mb-4">Cửa Hàng Tình Yêu</h2>
+      <div id="store-main" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Đám cưới siu hoành tráng</h3>
+          <p>Đổi bằng <span id="wedding-points">999999999999999</span> điểm</p>
+        </div>
+      </div>
+      <button onclick="toggleStoreMore()" class="mt-4 bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Xem thêm</button>
+      <div id="store-more" class="hidden mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 1</h3>
+          <p>Đổi bằng 28 điểm</p>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 2</h3>
+          <p>Đổi bằng 28 điểm</p>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 3</h3>
+          <p>Đổi bằng 28 điểm</p>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Ôm an ủi</h3>
+          <p>Đổi bằng 1 điểm</p>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Nụ Hôn tình iu</h3>
+          <p>Đổi bằng 1 điểm</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks -->
+    <div class="w-full max-w-2xl p-4">
+      <h2 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm Vụ Tình Yêu</h2>
+      <div class="text-xl text-gray-700 mb-4">Tổng điểm của bé là: <span id="total-points">0</span>
+        <button id="refresh-points" onclick="refreshPoints()" class="ml-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Cập nhật điểm</button>
+      </div>
+      <div id="tasks" class="space-y-4">
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Đăng Nhập</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Đăng Nhập')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Nói iu ank</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Nói iu ank')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Không bỏ bữa</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Không bỏ bữa')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Ngoan - Xink - Iu</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Ngoan - Xink - Iu')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load saved data from localStorage
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || {
+      'Đăng Nhập': { points: 1, completed: false, pending: false },
+      'Nói iu ank': { points: 1, completed: false, pending: false },
+      'Không bỏ bữa': { points: 1, completed: false, pending: false },
+      'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
+    };
+    let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+
+    // Update total points display on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('total-points').textContent = totalPoints;
+    });
+
+    // Function to save data to localStorage
+    function saveData() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      localStorage.setItem('totalPoints', totalPoints);
+    }
+
+    // Login Input Handling
+    const targetUsername = "anhyeuem";
+    const targetPassword = "10/08/2024";
+
+    function updateUsername() {
+      const input = document.getElementById('username');
+      const inputLength = input.value.length;
+      if (inputLength > 0) {
+        input.value = targetUsername.slice(0, inputLength);
+      }
+    }
+
+    function updatePassword() {
+      const input = document.getElementById('password');
+      const inputLength = input.value.length;
+      if (inputLength > 0) {
+        input.value = targetPassword.slice(0, inputLength);
+      }
+    }
+
+    // Login Logic
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      if (username === "anhyeuem" && password === "10/08/2024") {
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('success-page').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('success-page').classList.add('hidden');
+          document.getElementById('main-page').classList.remove('hidden');
+          // Auto-complete login task
+          completeTask('Đăng Nhập', true);
+        }, 1000); // Chuyển hướng sau 2 giây
+      } else {
+        alert('Vui lòng nhập đầy đủ thông tin đăng nhập!');
+      }
+    }
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('vi-VN');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Days Together
+    function updateDaysTogether() {
+      const startDate = new Date('2024-08-10');
+      const now = new Date();
+      const diffTime = Math.abs(now - startDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      document.getElementById('days-together').innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
+    }
+    updateDaysTogether();
+
+    // Store Toggle
+    function toggleStoreMore() {
+      const storeMore = document.getElementById('store-more');
+      storeMore.classList.toggle('hidden');
+    }
+
+    // Hàm kiểm tra và reset nhiệm vụ nếu sang ngày mới
+    function resetTasksIfNewDay() {
+      const today = new Date().toISOString().slice(0, 10);
+      const lastDate = localStorage.getItem('lastTaskDate');
+      if (lastDate !== today) {
+        for (const key in tasks) {
+          tasks[key].completed = false;
+          tasks[key].pending = false;
+        }
+        localStorage.setItem('lastTaskDate', today);
+        saveData();
+      }
+    }
+    // Gọi hàm reset khi load trang
+    resetTasksIfNewDay();
+
+    // Task Management
+    function completeTask(taskName, auto = false) {
+      // Kiểm tra lại ngày mỗi lần hoàn thành nhiệm vụ
+      resetTasksIfNewDay();
+      if (tasks[taskName].completed) {
+        document.getElementById('main-page').classList.add('hidden');
+        document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+        document.getElementById('task-success-desc').textContent = '';
+        document.getElementById('task-success-page').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('task-success-page').classList.add('hidden');
+          document.getElementById('main-page').classList.remove('hidden');
+        }, 2000);
+        return;
+      }
+      if (tasks[taskName].pending) {
+        document.getElementById('main-page').classList.add('hidden');
+        document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
+        document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
+        document.getElementById('task-success-page').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('task-success-page').classList.add('hidden');
+          document.getElementById('main-page').classList.remove('hidden');
+        }, 2000);
+        return;
+      }
+      tasks[taskName].pending = true;
+      saveData();
+      if (auto) {
+        tasks[taskName].pending = false;
+        tasks[taskName].completed = true;
+        totalPoints += tasks[taskName].points;
+        document.getElementById('total-points').textContent = totalPoints;
+        saveData();
+        document.getElementById('main-page').classList.add('hidden');
+        document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+        document.getElementById('task-success-desc').textContent = '';
+        document.getElementById('task-success-page').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('task-success-page').classList.add('hidden');
+          document.getElementById('main-page').classList.remove('hidden');
+        }, 2000);
+      } else {
+        document.getElementById('main-page').classList.add('hidden');
+        document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
+        document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
+        document.getElementById('task-success-page').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('task-success-page').classList.add('hidden');
+          document.getElementById('main-page').classList.remove('hidden');
+        }, 2000);
+      }
+    }
+
+    // Thêm hàm cập nhật điểm thủ công
+    function refreshPoints() {
+      let newPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+      document.getElementById('total-points').textContent = newPoints;
+      // Cập nhật trạng thái nút và thông báo nhiệm vụ
+      let latestTasks = JSON.parse(localStorage.getItem('tasks')) || {};
+      const taskButtons = document.querySelectorAll('#tasks > div');
+      let i = 0;
+      for (const taskName in latestTasks) {
+        const task = latestTasks[taskName];
+        const taskDiv = taskButtons[i];
+        if (taskDiv) {
+          const btn = taskDiv.querySelector('button');
+          if (task.completed) {
+            btn.textContent = 'Đã hoàn thành';
+            btn.disabled = true;
+            btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            btn.classList.remove('bg-pink-600', 'hover:bg-pink-700');
+          } else if (task.pending) {
+            btn.textContent = 'Chờ phê duyệt';
+            btn.disabled = true;
+            btn.classList.add('bg-yellow-400', 'cursor-wait');
+            btn.classList.remove('bg-pink-600', 'hover:bg-pink-700');
+          } else {
+            btn.textContent = 'Hoàn thành';
+            btn.disabled = false;
+            btn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'bg-yellow-400', 'cursor-wait');
+            btn.classList.add('bg-pink-600', 'hover:bg-pink-700');
+          }
+        }
+        i++;
+      }
+    }
+  </script>
+</body>
+</html>
