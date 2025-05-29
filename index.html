@@ -6,16 +6,44 @@
   <title>iumhcute</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .heart {
+      position: fixed;
+      top: -30px;
+      font-size: 18px;
+      color: #e11d48;
+      pointer-events: none;
+      z-index: 9999;
+      animation: fall 8s linear forwards;
+      will-change: transform, opacity;
+      /* Giới hạn chiều rộng màn hình mobile */
+      max-width: 40px;
+      min-width: 18px;
+    }
+    @media (max-width: 640px) {
+      .heart {
+        font-size: 14px !important;
+        max-width: 28px;
+        min-width: 14px;
+      }
+    }
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.7;
+      }
+    }
+  </style>
 </head>
-<body class="bg-pink-100 text-gray-800 font-sans">
+<body class="bg-pink-100 text-gray-800 font-sans overflow-x-hidden">
   <!-- Login Page -->
   <div id="login-page" class="min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h1 class="text-3xl font-bold text-pink-600 text-center mb-6">Đăng Nhập</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-pink-600 text-center mb-4">Đăng Nhập</h1>
       <div class="space-y-4">
-        <input id="username" type="text" placeholder="Tên đăng nhập" oninput="updateUsername()" class="w-full p-2 border rounded">
-        <input id="password" type="password" placeholder="Mật khẩu" oninput="updatePassword()" class="w-full p-2 border rounded">
-        <button onclick="login()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Đăng Nhập</button>
+        <input id="username" type="text" placeholder="Tên đăng nhập" oninput="updateUsername()" class="w-full p-2 border rounded text-base">
+        <input id="password" type="password" placeholder="Mật khẩu" oninput="updatePassword()" class="w-full p-2 border rounded text-base">
+        <button onclick="login()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base sm:text-lg">Đăng Nhập</button>
       </div>
     </div>
   </div>
@@ -68,10 +96,11 @@
     <!-- Store -->
     <div class="w-full max-w-2xl p-4">
       <h2 class="text-3xl font-bold text-pink-600 mb-4">Cửa Hàng Tình Yêu</h2>
-      <div id="store-main" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div id="store-main" class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Đám cưới siu hoành tráng</h3>
           <p>Đổi bằng <span id="wedding-points">999999999999999</span> điểm</p>
+          <button onclick="redeemWedding()" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
       </div>
       <button onclick="toggleStoreMore()" class="mt-4 bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Xem thêm</button>
@@ -79,22 +108,27 @@
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Voice đặc biệt 1</h3>
           <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 1', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Voice đặc biệt 2</h3>
           <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 2', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Voice đặc biệt 3</h3>
           <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 3', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Ôm an ủi</h3>
           <p>Đổi bằng 1 điểm</p>
+          <button onclick="redeemStore('Ôm an ủi', 1)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
         <div class="bg-pink-200 p-4 rounded-lg shadow">
           <h3 class="text-xl font-semibold">Nụ Hôn tình iu</h3>
           <p>Đổi bằng 1 điểm</p>
+          <button onclick="redeemStore('Nụ Hôn tình iu', 1)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
         </div>
       </div>
     </div>
@@ -147,6 +181,14 @@
           <button onclick="completeTask('Ngoan - Xink - Iu')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Notification Popup -->
+  <div id="notification-overlay" class="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+    <div id="notification-popup" class="bg-white rounded-xl shadow-2xl px-8 py-6 text-center min-w-[220px] max-w-xs">
+      <h2 id="notification-message" class="text-2xl font-bold mb-2 text-pink-600">Thông báo</h2>
+      <p id="notification-desc" class="text-base text-gray-700"></p>
     </div>
   </div>
 
@@ -334,6 +376,86 @@
           }
         }
         i++;
+      }
+    }
+
+    function createFallingHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.innerHTML = '💗';
+      // Đảm bảo trái tim không rơi sát mép trên mobile
+      const min = window.innerWidth * 0.05;
+      const max = window.innerWidth * 0.95;
+      heart.style.left = (min + Math.random() * (max - min)) + 'px';
+      heart.style.fontSize = (14 + Math.random() * 10) + 'px';
+      heart.style.opacity = 0.8 + Math.random() * 0.2;
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 8000);
+    }
+
+    // Tạo nhiều trái tim rơi liên tục
+    setInterval(createFallingHeart, 2500);
+
+    // Hàm hiện thông báo popup dạng nhiệm vụ
+    function showNotification(message, type = 'success') {
+      const overlay = document.getElementById('notification-overlay');
+      const popup = document.getElementById('notification-popup');
+      const msg = document.getElementById('notification-message');
+      const desc = document.getElementById('notification-desc');
+      if (type === 'success') {
+        msg.textContent = 'Thành công';
+        msg.classList.remove('text-red-500');
+        msg.classList.add('text-pink-600');
+        desc.textContent = message;
+      } else {
+        msg.textContent = 'Thất bại';
+        msg.classList.remove('text-pink-600');
+        msg.classList.add('text-red-500');
+        desc.textContent = message;
+      }
+      overlay.classList.remove('opacity-0', 'pointer-events-none');
+      overlay.classList.add('opacity-100');
+      setTimeout(() => {
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+      }, 1800);
+    }
+
+    // Đổi điểm Đám cưới siu hoành tráng
+    function redeemWedding() {
+      let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+      const weddingCost = 999999999999999;
+      if (totalPoints >= weddingCost) {
+        showNotification('Chờ Anh Nha, Vợ Yêu', 'success');
+        totalPoints -= weddingCost;
+        localStorage.setItem('totalPoints', totalPoints);
+        document.getElementById('total-points').textContent = totalPoints;
+      } else {
+        showNotification('bé không đủ điểm òyy', 'error');
+      }
+    }
+
+    // Đổi điểm cho các phần thưởng khác
+    function redeemStore(itemName, cost) {
+      let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+      if (totalPoints >= cost) {
+        let successMsg = 'Đã đổi thành công: ' + itemName + '!';
+        if (itemName.startsWith('Voice đặc biệt')) {
+          successMsg = 'check mess ngay thoiiii';
+        } else if (itemName === 'Ôm an ủi') {
+          successMsg = 'ôm cục cưng mụt cái nà';
+        } else if (itemName === 'Nụ Hôn tình iu') {
+          successMsg = 'chụtttt';
+        }
+        showNotification(successMsg, 'success');
+        totalPoints -= cost;
+        localStorage.setItem('totalPoints', totalPoints);
+        document.getElementById('total-points').textContent = totalPoints;
+      } else {
+        showNotification('bé không đủ điểm òyy', 'error');
       }
     }
   </script>
