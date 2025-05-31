@@ -1,0 +1,102 @@
+/* Falling Hearts Animation */
+.heart {
+  position: fixed;
+  top: -30px;
+  font-size: 18px;
+  color: #e11d48;
+  pointer-events: none;
+  z-index: 9999;
+  animation: fall 8s linear forwards;
+  will-change: transform, opacity;
+  max-width: 40px;
+  min-width: 18px;
+}
+
+/* Mobile responsiveness for hearts */
+@media (max-width: 640px) {
+  .heart {
+    font-size: 14px !important;
+    max-width: 28px;
+    min-width: 14px;
+  }
+}
+
+/* Heart falling animation */
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0.7;
+  }
+}
+
+/* Additional custom styles */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Notification overlay improvements */
+#notification-overlay {
+  backdrop-filter: blur(2px);
+}
+
+#notification-popup {
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+#notification-overlay:not(.opacity-0) #notification-popup {
+  transform: scale(1);
+}
+
+/* Music button hover effect */
+#play-music-btn {
+  transition: all 0.3s ease;
+}
+
+#play-music-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(219, 39, 119, 0.3);
+}
+
+/* Store items hover effect */
+.bg-pink-200:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Task items hover effect */
+.bg-white:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Button loading state */
+.cursor-wait {
+  cursor: wait !important;
+}
+
+/* Smooth page transitions */
+.hidden {
+  display: none !important;
+}
+
+/* Clock animation */
+#clock {
+  text-shadow: 0 2px 4px rgba(219, 39, 119, 0.2);
+  transition: color 0.3s ease;
+}
+
+/* Days counter styling */
+#days-together {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
