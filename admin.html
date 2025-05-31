@@ -3,444 +3,213 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản trị Nhiệm Vụ</title>
+  <title>Đăng nhập Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Thêm Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 </head>
-<body class="bg-pink-100 text-gray-800 font-sans min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-2xl p-4">
-    <div id="admin-login" class="bg-white p-8 rounded-lg shadow-lg">
-      <h2 class="text-3xl font-bold text-pink-600 mb-4 text-center">Đăng nhập Admin</h2>
-      <input id="admin-password" type="password" placeholder="Mật khẩu admin" class="w-full p-2 border rounded mb-4">
-      <button onclick="accessAdmin()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Truy cập</button>
-      <div id="admin-login-error" class="text-red-600 mt-2 hidden text-center">Mật khẩu không đúng!</div>
+<body class="bg-pink-50 min-h-screen flex items-center justify-center">
+  <div id="admin-login-page" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center text-pink-600 mb-4">Đăng nhập Admin</h1>
+    <div class="space-y-4">
+      <input id="admin-username" type="text" placeholder="Tên đăng nhập" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
+      <input id="admin-password" type="password" placeholder="Mật khẩu" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
+      <button onclick="adminLogin()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Truy cập</button>
+      <p id="admin-error" class="text-red-500 text-center hidden">Mật khẩu không đúng!</p>
     </div>
+  </div>
+
+  <div id="admin-main-page" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl hidden">
+    <h1 class="text-2xl font-bold text-center text-pink-600 mb-4">Quản Trị Nhiệm Vụ</h1>
     
-    <div id="admin-panel" class="hidden bg-white p-8 rounded-lg shadow-lg">
-      <h2 class="text-3xl font-bold text-pink-600 mb-4 text-center">Quản Trị Nhiệm Vụ</h2>
-      
-      <!-- Thông tin điểm -->
-      <div class="bg-pink-50 p-4 rounded-lg mb-6">
-        <div class="text-xl text-gray-700 mb-2">Tổng điểm hiện tại: <span id="total-points" class="font-bold text-pink-600">0</span></div>
-        <div class="flex items-center gap-2">
-          <input id="custom-point" type="number" class="border rounded px-3 py-2 w-32" placeholder="Điểm mới">
-          <button onclick="setCustomPoints()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            <i class="fas fa-save mr-1"></i>Cập nhật
-          </button>
-        </div>
+    <div class="mb-4">
+      <h2 class="text-lg font-semibold text-pink-600">Tổng điểm hiện tại: <span id="admin-total-points">0</span></h2>
+      <div class="mt-2 flex space-x-2">
+        <input id="points-input" type="number" placeholder="Số điểm" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
+        <button onclick="updatePoints()" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Cập nhật</button>
       </div>
+    </div>
 
-      <!-- Trạng thái kết nối -->
-      <div id="connection-status" class="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-wifi text-yellow-600"></i>
-          <span class="text-yellow-800">Đang kiểm tra kết nối...</span>
-        </div>
-      </div>
+    <div class="mb-4">
+      <h2 class="text-lg font-semibold text-pink-600">Kết nối:</h2>
+      <p id="connection-status" class="text-gray-600">Đang kiểm tra kết nối...</p>
+    </div>
 
-      <!-- Nhiệm vụ đang chờ -->
-      <div class="mb-6">
-        <h3 class="text-2xl font-bold text-pink-600 mb-3">Nhiệm Vụ Chờ Phê Duyệt</h3>
-        <div id="pending-tasks" class="space-y-3">
-          <div class="text-center text-gray-500 p-4">Đang tải...</div>
-        </div>
+    <div class="mb-4">
+      <h2 class="text-lg font-semibold text-pink-600">Nhiệm Vụ Chờ Phê Duyệt</h2>
+      <div id="pending-tasks" class="space-y-2">
+        <p>Đang tải...</p>
       </div>
+    </div>
 
-      <!-- Tất cả nhiệm vụ -->
-      <div class="mb-6">
-        <h3 class="text-2xl font-bold text-pink-600 mb-3">Tất Cả Nhiệm Vụ</h3>
-        <div id="all-tasks" class="space-y-3">
-          <div class="text-center text-gray-500 p-4">Đang tải...</div>
-        </div>
+    <div class="mb-4">
+      <h2 class="text-lg font-semibold text-pink-600">Tất Cả Nhiệm Vụ</h2>
+      <div id="all-tasks" class="space-y-2">
+        <p>Đang tải...</p>
       </div>
+    </div>
 
-      <!-- Nút điều khiển -->
-      <div class="flex gap-3">
-        <button onclick="refreshTasks()" class="flex-1 bg-green-600 text-white p-3 rounded hover:bg-green-700 flex items-center justify-center gap-2">
-          <i class="fas fa-sync-alt"></i>
-          Làm mới
-        </button>
-        <button onclick="resetAllTasks()" class="flex-1 bg-red-600 text-white p-3 rounded hover:bg-red-700 flex items-center justify-center gap-2">
-          <i class="fas fa-undo"></i>
-          Reset hôm nay
-        </button>
-      </div>
+    <div class="flex space-x-2">
+      <button onclick="refreshAdmin()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Làm mới</button>
+      <button onclick="resetToday()" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700 transition-all">Reset hôm nay</button>
+    </div>
 
-      <!-- Thống kê -->
-      <div class="mt-6 bg-gray-50 p-4 rounded-lg">
-        <h4 class="font-bold text-gray-700 mb-2">Thống kê:</h4>
-        <div id="stats" class="text-sm text-gray-600">
-          <div>Tổng nhiệm vụ: <span id="total-tasks">0</span></div>
-          <div>Đã hoàn thành: <span id="completed-tasks">0</span></div>
-          <div>Chờ phê duyệt: <span id="pending-tasks-count">0</span></div>
-        </div>
-      </div>
+    <div class="mt-4">
+      <h2 class="text-lg font-semibold text-pink-600">Thống kê:</h2>
+      <p>Tổng nhiệm vụ: <span id="total-tasks">0</span></p>
+      <p>Đã hoàn thành: <span id="completed-tasks">0</span></p>
+      <p>Chờ phê duyệt: <span id="pending-tasks-count">0</span></p>
     </div>
   </div>
 
   <script>
-    // Global variables
-    let tasks = {};
-    let totalPoints = 0;
-    let autoRefreshInterval;
-
-    // Khởi tạo với các task mặc định
-    const defaultTasks = {
-      'Đăng Nhập': { points: 1, completed: false, pending: false },
-      'Nói iu ank': { points: 1, completed: false, pending: false },
-      'Không bỏ bữa': { points: 1, completed: false, pending: false },
-      'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
+    // Khởi tạo Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8RQdHk5tcPifeNbZiIq8saNP16hE1ZJ0",
+      authDomain: "lqciumh.firebaseapp.com",
+      databaseURL: "https://lqciumh-default-rtdb.firebaseio.com",
+      projectId: "lqciumh",
+      storageBucket: "lqciumh.firebasestorage.app",
+      messagingSenderId: "406889926218",
+      appId: "1:406889926218:web:b0eba5734f51ffcbd9a0b3",
+      measurementId: "G-1HNQX1WFYR"
     };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-    // Kiểm tra và khởi tạo dữ liệu
-    function initializeData() {
+    const adminUsername = "admin";
+    const adminPassword = "admin123";
+
+    async function fetchDataFromServer() {
       try {
-        // Kiểm tra xem có dữ liệu không
-        const savedTasks = localStorage.getItem('tasks');
-        const savedPoints = localStorage.getItem('totalPoints');
-        
-        if (!savedTasks) {
-          // Nếu chưa có dữ liệu, tạo mới
-          localStorage.setItem('tasks', JSON.stringify(defaultTasks));
-          tasks = { ...defaultTasks };
-        } else {
-          tasks = JSON.parse(savedTasks);
-          // Đảm bảo có đủ các task mặc định
-          Object.keys(defaultTasks).forEach(taskName => {
-            if (!tasks[taskName]) {
-              tasks[taskName] = { ...defaultTasks[taskName] };
-            }
-          });
-          localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        totalPoints = parseInt(savedPoints) || 0;
-        updateConnectionStatus('connected');
-        
+        const snapshot = await database.ref('/').once('value');
+        const data = snapshot.val() || {
+          tasks: {
+            'Đăng Nhập': { points: 1, completed: false, pending: false },
+            'Nói iu ank': { points: 1, completed: false, pending: false },
+            'Không bỏ bữa': { points: 1, completed: false, pending: false },
+            'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
+          },
+          totalPoints: 0,
+          lastTaskDate: new Date().toISOString().slice(0, 10)
+        };
+        return data;
       } catch (error) {
-        console.error('Lỗi khởi tạo dữ liệu:', error);
-        updateConnectionStatus('error');
-        // Sử dụng dữ liệu mặc định
-        tasks = { ...defaultTasks };
-        totalPoints = 0;
+        console.error('Error fetching data:', error);
+        return null;
       }
     }
 
-    // Cập nhật trạng thái kết nối
-    function updateConnectionStatus(status) {
-      const statusDiv = document.getElementById('connection-status');
-      const icon = statusDiv.querySelector('i');
-      const text = statusDiv.querySelector('span');
-      
-      statusDiv.className = 'mb-4 p-3 rounded-lg border';
-      
-      switch(status) {
-        case 'connected':
-          statusDiv.classList.add('bg-green-50', 'border-green-200');
-          icon.className = 'fas fa-check-circle text-green-600';
-          text.textContent = 'Kết nối thành công - Dữ liệu đã được tải';
-          text.className = 'text-green-800';
-          break;
-        case 'error':
-          statusDiv.classList.add('bg-red-50', 'border-red-200');
-          icon.className = 'fas fa-exclamation-triangle text-red-600';
-          text.textContent = 'Lỗi kết nối - Sử dụng dữ liệu mặc định';
-          text.className = 'text-red-800';
-          break;
-        case 'syncing':
-          statusDiv.classList.add('bg-blue-50', 'border-blue-200');
-          icon.className = 'fas fa-spinner fa-spin text-blue-600';
-          text.textContent = 'Đang đồng bộ dữ liệu...';
-          text.className = 'text-blue-800';
-          break;
+    async function saveData(data) {
+      try {
+        await database.ref('/').set(data);
+      } catch (error) {
+        console.error('Error saving data:', error);
       }
     }
 
-    // Cập nhật tổng điểm
-    function updateTotalPoints() {
-      document.getElementById('total-points').textContent = totalPoints;
+    function adminLogin() {
+      const username = document.getElementById('admin-username').value;
+      const password = document.getElementById('admin-password').value;
+      if (username === adminUsername && password === adminPassword) {
+        document.getElementById('admin-login-page').classList.add('hidden');
+        document.getElementById('admin-main-page').classList.remove('hidden');
+        refreshAdmin();
+      } else {
+        document.getElementById('admin-error').classList.remove('hidden');
+      }
     }
 
-    // Cập nhật nhiệm vụ chờ phê duyệt
-    function updatePendingTasks() {
+    async function refreshAdmin() {
+      const data = await fetchDataFromServer();
+      if (!data) return;
+
+      const tasks = data.tasks || {};
+      document.getElementById('admin-total-points').textContent = data.totalPoints || 0;
+      document.getElementById('connection-status').textContent = 'Đã kết nối';
+
       const pendingTasksDiv = document.getElementById('pending-tasks');
       pendingTasksDiv.innerHTML = '';
-      
-      let hasPending = false;
       let pendingCount = 0;
-      
       for (const taskName in tasks) {
         if (tasks[taskName].pending) {
-          hasPending = true;
-          pendingCount++;
-          
           const taskDiv = document.createElement('div');
-          taskDiv.className = 'bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex justify-between items-center';
+          taskDiv.className = 'flex justify-between items-center bg-white p-2 rounded';
           taskDiv.innerHTML = `
-            <div class="flex items-center gap-3">
-              <i class="fas fa-clock text-yellow-600"></i>
-              <div>
-                <h4 class="text-lg font-semibold text-gray-800">${taskName}</h4>
-                <p class="text-sm text-gray-600">${tasks[taskName].points} điểm</p>
-              </div>
+            <span>${taskName} (${tasks[taskName].points} điểm)</span>
+            <div>
+              <button onclick="approveTask('${taskName}')" class="bg-green-600 text-white p-1 rounded hover:bg-green-700">Phê duyệt</button>
+              <button onclick="rejectTask('${taskName}')" class="bg-red-600 text-white p-1 rounded hover:bg-red-700">Từ chối</button>
             </div>
-            <button onclick="approveTask(&quot;${taskName.replace(/"/g, '&quot;')}&quot;)"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2">
-              <i class="fas fa-check"></i>
-              Phê duyệt
-            </button>
           `;
           pendingTasksDiv.appendChild(taskDiv);
+          pendingCount++;
         }
       }
-      
-      if (!hasPending) {
-        pendingTasksDiv.innerHTML = `
-          <div class="text-center text-gray-500 p-6 bg-gray-50 rounded-lg">
-            <i class="fas fa-clipboard-check text-3xl mb-2"></i>
-            <div>Không có nhiệm vụ nào chờ phê duyệt</div>
-          </div>
-        `;
+      if (pendingCount === 0) {
+        pendingTasksDiv.innerHTML = '<p>Không có nhiệm vụ nào chờ phê duyệt.</p>';
       }
-      
-      // Cập nhật thống kê
+
+      const allTasksDiv = document.getElementById('all-tasks');
+      allTasksDiv.innerHTML = '';
+      let totalTasks = 0;
+      let completedCount = 0;
+      for (const taskName in tasks) {
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'bg-white p-2 rounded';
+        taskDiv.textContent = `${taskName}: ${tasks[taskName].completed ? 'Đã hoàn thành' : tasks[taskName].pending ? 'Chờ phê duyệt' : 'Chưa hoàn thành'} (${tasks[taskName].points} điểm)`;
+        allTasksDiv.appendChild(taskDiv);
+        totalTasks++;
+        if (tasks[taskName].completed) completedCount++;
+      }
+
+      document.getElementById('total-tasks').textContent = totalTasks;
+      document.getElementById('completed-tasks').textContent = completedCount;
       document.getElementById('pending-tasks-count').textContent = pendingCount;
     }
 
-    // Cập nhật tất cả nhiệm vụ
-    function updateAllTasks() {
-      const allTasksDiv = document.getElementById('all-tasks');
-      allTasksDiv.innerHTML = '';
-      
-      let completedCount = 0;
-      let totalTaskCount = 0;
-      
-      for (const taskName in tasks) {
-        totalTaskCount++;
-        const task = tasks[taskName];
-        
-        if (task.completed) completedCount++;
-        
-        let statusClass = 'bg-gray-50 border-gray-200';
-        let statusIcon = 'fas fa-circle text-gray-400';
-        let statusText = 'Chưa hoàn thành';
-        
-        if (task.completed) {
-          statusClass = 'bg-green-50 border-green-200';
-          statusIcon = 'fas fa-check-circle text-green-600';
-          statusText = 'Đã hoàn thành';
-        } else if (task.pending) {
-          statusClass = 'bg-yellow-50 border-yellow-200';
-          statusIcon = 'fas fa-clock text-yellow-600';
-          statusText = 'Chờ phê duyệt';
-        }
-        
-        const taskDiv = document.createElement('div');
-        taskDiv.className = `${statusClass} border p-4 rounded-lg flex justify-between items-center`;
-        taskDiv.innerHTML = `
-          <div class="flex items-center gap-3">
-            <i class="${statusIcon}"></i>
-            <div>
-              <h4 class="text-lg font-semibold text-gray-800">${taskName}</h4>
-              <p class="text-sm text-gray-600">${task.points} điểm • ${statusText}</p>
-            </div>
-          </div>
-          ${task.completed ? `
-            <button onclick="resetTask('${taskName.replace(/'/g, "\\'")}')" 
-                    class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
-              Reset
-            </button>
-          ` : ''}
-        `;
-        allTasksDiv.appendChild(taskDiv);
-      }
-      
-      // Cập nhật thống kê
-      document.getElementById('total-tasks').textContent = totalTaskCount;
-      document.getElementById('completed-tasks').textContent = completedCount;
+    async function approveTask(taskName) {
+      const data = await fetchDataFromServer();
+      if (!data) return;
+      data.tasks[taskName].pending = false;
+      data.tasks[taskName].completed = true;
+      data.totalPoints = (data.totalPoints || 0) + data.tasks[taskName].points;
+      await saveData(data);
+      refreshAdmin();
     }
 
-    // Lưu dữ liệu
-    function saveData() {
-      try {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        localStorage.setItem('totalPoints', totalPoints.toString());
-        updateConnectionStatus('connected');
-      } catch (error) {
-        console.error('Lỗi lưu dữ liệu:', error);
-        updateConnectionStatus('error');
+    async function rejectTask(taskName) {
+      const data = await fetchDataFromServer();
+      if (!data) return;
+      data.tasks[taskName].pending = false;
+      await saveData(data);
+      refreshAdmin();
+    }
+
+    async function updatePoints() {
+      const pointsInput = document.getElementById('points-input').value;
+      const newPoints = parseInt(pointsInput);
+      if (!isNaN(newPoints)) {
+        const data = await fetchDataFromServer();
+        data.totalPoints = newPoints;
+        await saveData(data);
+        document.getElementById('admin-total-points').textContent = newPoints;
       }
     }
 
-    // Phê duyệt nhiệm vụ
-    function approveTask(taskName) {
-      if (!tasks[taskName] || !tasks[taskName].pending) {
-        alert('Nhiệm vụ không tồn tại hoặc không trong trạng thái chờ phê duyệt!');
-        return;
+    async function resetToday() {
+      const data = await fetchDataFromServer();
+      if (!data) return;
+      for (const taskName in data.tasks) {
+        data.tasks[taskName].completed = false;
+        data.tasks[taskName].pending = false;
       }
-      
-      tasks[taskName].pending = false;
-      tasks[taskName].completed = true;
-      totalPoints += tasks[taskName].points;
-      
-      saveData();
-      updateTotalPoints();
-      updatePendingTasks();
-      updateAllTasks();
-      
-      alert(`✅ Nhiệm vụ "${taskName}" đã được phê duyệt!\nĐiểm thưởng: +${tasks[taskName].points}\nTổng điểm: ${totalPoints}`);
+      data.lastTaskDate = new Date().toISOString().slice(0, 10);
+      await saveData(data);
+      refreshAdmin();
     }
-
-    // Reset nhiệm vụ
-    function resetTask(taskName) {
-      if (confirm(`Bạn có chắc muốn reset nhiệm vụ "${taskName}"?`)) {
-        if (tasks[taskName].completed) {
-          totalPoints -= tasks[taskName].points;
-        }
-        tasks[taskName].completed = false;
-        tasks[taskName].pending = false;
-        
-        saveData();
-        updateTotalPoints();
-        updatePendingTasks();
-        updateAllTasks();
-        
-        alert(`🔄 Đã reset nhiệm vụ "${taskName}"`);
-      }
-    }
-
-    // Reset all tasks
-    function resetAllTasks() {
-      if (confirm('Bạn có chắc muốn reset tất cả nhiệm vụ hôm nay? Điểm sẽ không bị mất.')) {
-        for (const taskName in tasks) {
-          tasks[taskName].completed = false;
-          tasks[taskName].pending = false;
-        }
-        
-        saveData();
-        updatePendingTasks();
-        updateAllTasks();
-        
-        alert('🔄 Đã reset tất cả nhiệm vụ hôm nay!');
-      }
-    }
-
-    // Đăng nhập admin
-    function accessAdmin() {
-      const password = document.getElementById('admin-password').value;
-      if (password === 'lqciumhnhieulam...') {
-        document.getElementById('admin-login').classList.add('hidden');
-        document.getElementById('admin-panel').classList.remove('hidden');
-        
-        // Khởi tạo dữ liệu và cập nhật giao diện
-        initializeData();
-        updateTotalPoints();
-        updatePendingTasks();
-        updateAllTasks();
-        
-        // Bắt đầu auto-refresh
-        startAutoRefresh();
-        
-      } else {
-        document.getElementById('admin-login-error').classList.remove('hidden');
-        setTimeout(() => {
-          document.getElementById('admin-login-error').classList.add('hidden');
-        }, 3000);
-      }
-    }
-
-    // Làm mới dữ liệu
-    function refreshTasks() {
-      updateConnectionStatus('syncing');
-      
-      setTimeout(() => {
-        try {
-          // Tải lại dữ liệu từ localStorage
-          const savedTasks = localStorage.getItem('tasks');
-          const savedPoints = localStorage.getItem('totalPoints');
-          
-          if (savedTasks) {
-            tasks = JSON.parse(savedTasks);
-          }
-          if (savedPoints) {
-            totalPoints = parseInt(savedPoints);
-          }
-          
-          // Cập nhật giao diện
-          updateTotalPoints();
-          updatePendingTasks();
-          updateAllTasks();
-          updateConnectionStatus('connected');
-          
-          // Hiển thị thông báo
-          const pendingCount = Object.values(tasks).filter(t => t.pending).length;
-          alert(`🔄 Đã làm mới!\nNhiệm vụ chờ phê duyệt: ${pendingCount}`);
-          
-        } catch (error) {
-          console.error('Lỗi refresh:', error);
-          updateConnectionStatus('error');
-          alert('❌ Có lỗi xảy ra khi làm mới dữ liệu!');
-        }
-      }, 500);
-    }
-
-    // Tự động làm mới
-    function startAutoRefresh() {
-      // Clear existing interval
-      if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-      }
-      
-      // Refresh every 10 seconds
-      autoRefreshInterval = setInterval(() => {
-        const savedTasks = localStorage.getItem('tasks');
-        const savedPoints = localStorage.getItem('totalPoints');
-        
-        if (savedTasks) {
-          const newTasks = JSON.parse(savedTasks);
-          const newPoints = parseInt(savedPoints) || 0;
-          
-          // Kiểm tra xem có thay đổi không
-          if (JSON.stringify(newTasks) !== JSON.stringify(tasks) || newPoints !== totalPoints) {
-            tasks = newTasks;
-            totalPoints = newPoints;
-            updateTotalPoints();
-            updatePendingTasks();
-            updateAllTasks();
-          }
-        }
-      }, 5000); // 5 giây
-    }
-
-    // Cập nhật điểm thủ công
-    function setCustomPoints() {
-      const val = parseInt(document.getElementById('custom-point').value);
-      if (!isNaN(val) && val >= 0) {
-        totalPoints = val;
-        localStorage.setItem('totalPoints', val.toString());
-        updateTotalPoints();
-        document.getElementById('custom-point').value = '';
-        alert(`✅ Đã cập nhật điểm thành: ${val}`);
-      } else {
-        alert('❌ Vui lòng nhập số hợp lệ (>= 0)!');
-      }
-    }
-
-    // Cleanup khi đóng trang
-    window.addEventListener('beforeunload', () => {
-      if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-      }
-    });
-
-    // Xử lý Enter key cho password
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('admin-password').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          accessAdmin();
-        }
-      });
-    });
   </script>
 </body>
 </html>
