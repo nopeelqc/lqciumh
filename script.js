@@ -1,19 +1,3 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyCmrVzBq9a2o26lOapC3UJzVtTs2GaH9hI",
-  authDomain: "lqciumh-468fa.firebaseapp.com",
-  databaseURL: "https://lqciumh-468fa-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "lqciumh-468fa",
-  storageBucket: "lqciumh-468fa.firebasestorage.app",
-  messagingSenderId: "888046777165",
-  appId: "1:888046777165:web:8dcbc1feebd846e944bd04",
-  measurementId: "G-QPWP9DW56Y"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const tasksRef = db.ref('tasks');
-const pointsRef = db.ref('totalPoints');
-
 // Global variables
 let tasks = JSON.parse(localStorage.getItem('tasks')) || {
   'Đăng Nhập': { points: 1, completed: false, pending: false },
@@ -37,49 +21,6 @@ const targetPassword = "10/08/2024";
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Tải dữ liệu ban đầu từ Firebase
-  tasksRef.once('value', (snapshot) => {
-    const firebaseTasks = snapshot.val();
-    if (firebaseTasks) {
-      tasks = firebaseTasks;
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-    } else {
-      tasksRef.set(tasks); // Đẩy tasks cục bộ lên Firebase nếu chưa có
-    }
-    refreshPoints();
-  });
-
-  pointsRef.once('value', (snapshot) => {
-    const firebasePoints = snapshot.val();
-    if (firebasePoints !== null) {
-      totalPoints = firebasePoints;
-      localStorage.setItem('totalPoints', totalPoints);
-    } else {
-      pointsRef.set(totalPoints); // Đẩy points cục bộ lên Firebase nếu chưa có
-    }
-    document.getElementById('total-points').textContent = totalPoints;
-  });
-
-  // Lắng nghe cập nhật thời gian thực từ Firebase
-  tasksRef.on('value', (snapshot) => {
-    const updatedTasks = snapshot.val();
-    if (updatedTasks) {
-      tasks = updatedTasks;
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      refreshPoints();
-    }
-  });
-
-  pointsRef.on('value', (snapshot) => {
-    const updatedPoints = snapshot.val();
-    if (updatedPoints !== null) {
-      totalPoints = updatedPoints;
-      localStorage.setItem('totalPoints', totalPoints);
-      document.getElementById('total-points').textContent = totalPoints;
-    }
-  });
-
-  // Mã khởi tạo hiện có
   document.getElementById('total-points').textContent = totalPoints;
   initializeMusic();
   resetTasksIfNewDay();
@@ -89,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function saveData() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
   localStorage.setItem('totalPoints', totalPoints);
-  tasksRef.set(tasks);
-  pointsRef.set(totalPoints);
 }
 
 // Login functions
@@ -192,6 +131,7 @@ function completeTask(taskName, auto = false) {
   tasks[taskName].pending = true;
   saveData();
   
+  // Only "Đăng Nhập" task gets auto-completed
   if (auto && taskName === 'Đăng Nhập') {
     tasks[taskName].pending = false;
     tasks[taskName].completed = true;
@@ -303,7 +243,6 @@ function redeemWedding() {
     showNotification('Chờ Anh Nha, Vợ Yêu', 'success');
     totalPoints -= weddingCost;
     localStorage.setItem('totalPoints', totalPoints);
-    pointsRef.set(totalPoints);
     document.getElementById('total-points').textContent = totalPoints;
   } else {
     showNotification('bé không đủ điểm òyy', 'error');
@@ -324,7 +263,6 @@ function redeemStore(itemName, cost) {
     showNotification(successMsg, 'success');
     totalPoints -= cost;
     localStorage.setItem('totalPoints', totalPoints);
-    pointsRef.set(totalPoints);
     document.getElementById('total-points').textContent = totalPoints;
   } else {
     showNotification('bé không đủ điểm òyy', 'error');
