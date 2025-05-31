@@ -6,7 +6,6 @@ let tasks = JSON.parse(localStorage.getItem('tasks')) || {
 };
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
 
-// Music variables
 let music = document.getElementById('bg-music');
 let playBtn = document.getElementById('play-music-btn');
 let musicOnIcon = document.getElementById('music-on');
@@ -14,12 +13,10 @@ let musicOffIcon = document.getElementById('music-off');
 let musicStarted = false;
 let autoPlayAttempted = false;
 
-// Constants
 const targetUsername = "anhyeuem";
 const targetPassword = "10/08/2024";
 const adminPassword = "lqciumhnhieulam...";
 
-// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('total-points')) {
     document.getElementById('total-points').textContent = totalPoints;
@@ -33,13 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Data management functions
 function saveData() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
   localStorage.setItem('totalPoints', totalPoints);
 }
 
-// Login functions
 function updateUsername() {
   const input = document.getElementById('username');
   if (!input) return;
@@ -75,7 +70,6 @@ function login() {
   }
 }
 
-// Admin login
 function updateAdminPassword() {
   const input = document.getElementById('admin-password');
   if (!input) return;
@@ -97,7 +91,6 @@ function adminLogin() {
   }
 }
 
-// Admin dashboard functions
 function checkConnection() {
   const status = document.getElementById('connection-status');
   if (status) {
@@ -119,7 +112,6 @@ function updateAdminDashboard() {
 
   totalPointsSpan.textContent = totalPoints;
 
-  // Clear existing content
   pendingTasksDiv.innerHTML = '';
   allTasksDiv.innerHTML = '';
 
@@ -133,7 +125,6 @@ function updateAdminDashboard() {
     if (task.completed) completedTasks++;
     if (task.pending && !task.completed) pendingTasksCount++;
 
-    // Populate all tasks
     const taskDiv = document.createElement('div');
     taskDiv.className = 'flex justify-between items-center p-2 bg-pink-100 rounded';
     taskDiv.innerHTML = `
@@ -144,7 +135,6 @@ function updateAdminDashboard() {
     `;
     allTasksDiv.appendChild(taskDiv);
 
-    // Populate pending tasks
     if (task.pending && !task.completed) {
       const pendingDiv = document.createElement('div');
       pendingDiv.className = 'flex justify-between items-center p-2 bg-yellow-100 rounded';
@@ -219,7 +209,6 @@ function refreshAdminTasks() {
   showNotification('Đã làm mới dữ liệu!', 'success');
 }
 
-// Clock and date functions
 function updateClock() {
   const now = new Date();
   const clock = document.getElementById('clock');
@@ -237,13 +226,11 @@ function updateDaysTogether() {
   }
 }
 
-// Store functions
 function toggleStoreMore() {
   const storeMore = document.getElementById('store-more');
   if (storeMore) storeMore.classList.toggle('hidden');
 }
 
-// Task management functions
 function resetTasksIfNewDay() {
   const today = new Date().toISOString().slice(0, 10);
   const lastDate = localStorage.getItem('lastTaskDate');
@@ -344,7 +331,6 @@ function refreshPoints() {
   }
 }
 
-// Heart animation functions
 function createFallingHeart() {
   const heart = document.createElement('div');
   heart.className = 'heart';
@@ -360,7 +346,6 @@ function createFallingHeart() {
   }, 8000);
 }
 
-// Notification functions
 function showNotification(message, type = 'success') {
   const overlay = document.getElementById('notification-overlay');
   const popup = document.getElementById('notification-popup');
@@ -390,7 +375,6 @@ function showNotification(message, type = 'success') {
   }, 1800);
 }
 
-// Store redemption functions
 function redeemWedding() {
   let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
   const weddingCost = 999999999999999;
@@ -424,7 +408,6 @@ function redeemStore(itemName, cost) {
   }
 }
 
-// Music functions
 function initializeMusic() {
   if (!music) {
     music = document.getElementById('bg-music');
@@ -505,6 +488,7 @@ function setupMusicButton() {
   
   playBtn.addEventListener('click', function(e) {
     e.stopPropagation();
+    
     if (!music) return;
     
     if (!musicStarted) {
@@ -536,10 +520,8 @@ function setupMusicButton() {
   });
 }
 
-// Initialize intervals and setup
 setInterval(updateClock, 1000);
 setInterval(createFallingHeart, 2500);
 
-// Run initial setup
 updateClock();
 updateDaysTogether();

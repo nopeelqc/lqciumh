@@ -11,7 +11,6 @@
   min-width: 18px;
 }
 
-/* Mobile responsiveness for hearts */
 @media (max-width: 640px) {
   .heart {
     font-size: 14px !important;
@@ -20,7 +19,6 @@
   }
 }
 
-/* Heart falling animation */
 @keyframes fall {
   to {
     transform: translateY(100vh) rotate(360deg);
@@ -28,12 +26,10 @@
   }
 }
 
-/* Additional custom styles */
 .transition-all {
   transition: all 0.3s ease;
 }
 
-/* Notification overlay improvements */
 #notification-overlay {
   backdrop-filter: blur(2px);
 }
@@ -47,7 +43,6 @@
   transform: scale(1);
 }
 
-/* Music button hover effect */
 #play-music-btn {
   transition: all 0.3s ease;
 }
@@ -57,36 +52,30 @@
   box-shadow: 0 8px 25px rgba(219, 39, 119, 0.3);
 }
 
-/* Store items hover effect */
 .bg-pink-200:hover {
   transform: translateY(-2px);
   transition: transform 0.2s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Task items hover effect */
 .bg-white:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.2s ease;
 }
 
-/* Button loading state */
 .cursor-wait {
   cursor: wait !important;
 }
 
-/* Smooth page transitions */
 .hidden {
   display: none !important;
 }
 
-/* Clock animation */
 #clock {
   text-shadow: 0 2px 4px rgba(219, 39, 119, 0.2);
   transition: color 0.3s ease;
 }
 
-/* Days counter styling */
 #days-together {
   animation: pulse 2s infinite;
 }

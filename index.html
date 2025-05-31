@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đăng Nhập</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-pink-50 font-sans">
-  <!-- Login Page -->
   <div id="login-page" class="min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
       <h1 class="text-2xl font-bold text-pink-600 mb-6 text-center">Đăng Nhập</h1>
@@ -18,7 +18,6 @@
     </div>
   </div>
 
-  <!-- Success Page -->
   <div id="success-page" class="min-h-screen flex items-center justify-center hidden">
     <div class="bg-white p-8 rounded-lg shadow-lg text-center">
       <h1 class="text-2xl font-bold text-pink-600">Đăng nhập thành công!</h1>
@@ -26,7 +25,6 @@
     </div>
   </div>
 
-  <!-- Task Already Completed -->
   <div id="task-success-page" class="min-h-screen flex items-center justify-center hidden">
     <div class="bg-white p-8 rounded-lg shadow-lg text-center">
       <h1 id="task-success-title" class="text-2xl font-bold text-pink-600">Chưa hoàn thành</h1>
@@ -34,14 +32,13 @@
     </div>
   </div>
 
-  <!-- Main Page -->
   <div id="main-page" class="min-h-screen p-6 hidden">
     <audio id="bg-music" loop>
       <source src="nhaciumh.mp3" type="audio/mpeg">
     </audio>
-    <button id="play-music-btn" class="fixed top-4 right-4 bg-pink-600 text-white p-2 rounded-full hover:bg-pink-700 transition-all">
-      <span id="music-on" class="hidden">🎵</span>
-      <span id="music-off">🔇</span>
+    <button id="play-music-btn" class="fixed bottom-4 right-4 z-50 bg-pink-600 text-white p-3 rounded-full shadow-lg">
+        <i id="music-on" class="fas fa-music"></i>
+        <i id="music-off" class="fas fa-volume-mute hidden"></i>
     </button>
 
     <div class="flex justify-between items-center mb-6">
@@ -51,7 +48,6 @@
 
     <p id="days-together" class="text-center text-lg text-gray-600 mb-6"></p>
 
-    <!-- Store Section -->
     <div class="bg-white p-4 rounded-lg shadow mb-6">
       <h2 class="text-xl font-semibold text-pink-600 mb-4">Cửa Hàng Tình Yêu</h2>
       <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
@@ -101,7 +97,6 @@
       <button onclick="toggleStoreMore()" class="mt-4 text-pink-600 hover:text-pink-700">Xem thêm</button>
     </div>
 
-    <!-- Tasks Section -->
     <div class="bg-white p-4 rounded-lg shadow mb-6">
       <div class="flex justify-between items-center">
         <h2 class="text-xl font-semibold text-pink-600">Nhiệm Vụ Tình Yêu</h2>
@@ -143,7 +138,6 @@
         </div>
       </div>
 
-      <!-- Admin Login Section -->
       <div class="mt-6">
         <h2 class="text-xl font-semibold text-pink-600 mb-4">Đăng Nhập Admin</h2>
         <input id="admin-password" type="password" placeholder="Mật khẩu admin" class="w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600" oninput="updateAdminPassword()">
@@ -151,39 +145,32 @@
         <p id="admin-error" class="text-red-500 text-center mt-4 hidden">Mật khẩu không đúng!</p>
       </div>
 
-      <!-- Admin Dashboard -->
       <div id="admin-dashboard" class="hidden mt-6">
         <h2 class="text-xl font-semibold text-pink-600 mb-4">Quản Trị Nhiệm Vụ</h2>
-        <!-- Total Points -->
         <div class="bg-white p-4 rounded-lg shadow mb-6">
           <h3 class="text-lg font-semibold text-pink-600">Tổng điểm hiện tại: <span id="admin-total-points">0</span></h3>
           <input id="new-points" type="number" placeholder="Nhập số điểm mới" class="w-full p-2 mt-4 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
           <button onclick="updatePoints()" class="w-full bg-pink-600 text-white py-2 mt-2 rounded hover:bg-pink-700 transition-all">Cập nhật</button>
         </div>
-        <!-- Connection Status -->
         <div class="bg-white p-4 rounded-lg shadow mb-6">
           <p id="connection-status" class="text-gray-600">Đang kiểm tra kết nối...</p>
         </div>
-        <!-- Pending Tasks -->
         <div class="bg-white p-4 rounded-lg shadow mb-6">
           <h3 class="text-lg font-semibold text-pink-600 mb-4">Nhiệm Vụ Chờ Phê Duyệt</h3>
           <div id="pending-tasks" class="space-y-4">
             <p>Đang tải...</p>
           </div>
         </div>
-        <!-- All Tasks -->
         <div class="bg-white p-4 rounded-lg shadow mb-6">
           <h3 class="text-lg font-semibold text-pink-600 mb-4">Tất Cả Nhiệm Vụ</h3>
           <div id="all-tasks" class="space-y-4">
             <p>Đang tải...</p>
           </div>
         </div>
-        <!-- Controls -->
         <div class="bg-white p-4 rounded-lg shadow mb-6">
           <button onclick="refreshAdminTasks()" class="w-full bg-pink-600 text-white py-2 rounded hover:bg-pink-700 transition-all mb-2">Làm mới</button>
           <button onclick="resetTasks()" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-all">Reset hôm nay</button>
         </div>
-        <!-- Statistics -->
         <div class="bg-white p-4 rounded-lg shadow">
           <h3 class="text-lg font-semibold text-pink-600 mb-4">Thống kê:</h3>
           <p>Tổng nhiệm vụ: <span id="total-tasks">0</span></p>
@@ -194,7 +181,6 @@
     </div>
   </div>
 
-  <!-- Notification Overlay -->
   <div id="notification-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 pointer-events-none transition-all">
     <div id="notification-popup" class="bg-white p-6 rounded-lg shadow-lg text-center">
       <h1 id="notification-message" class="text-xl font-bold text-pink-600">Thông báo</h1>
