@@ -1,4 +1,3 @@
-// Global variables
 let tasks = JSON.parse(localStorage.getItem('tasks')) || {
   'Đăng Nhập': { points: 1, completed: false, pending: false },
   'Nói iu ank': { points: 1, completed: false, pending: false },
@@ -8,22 +7,30 @@ let tasks = JSON.parse(localStorage.getItem('tasks')) || {
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
 
 // Music variables
-var music = document.getElementById('bg-music');
-var playBtn = document.getElementById('play-music-btn');
-var musicOnIcon = document.getElementById('music-on');
-var musicOffIcon = document.getElementById('music-off');
+let music = document.getElementById('bg-music');
+let playBtn = document.getElementById('play-music-btn');
+let musicOnIcon = document.getElementById('music-on');
+let musicOffIcon = document.getElementById('music-off');
 let musicStarted = false;
 let autoPlayAttempted = false;
 
 // Constants
 const targetUsername = "anhyeuem";
 const targetPassword = "10/08/2024";
+const adminPassword = "lqciumhnhieulam...";
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('total-points').textContent = totalPoints;
+  if (document.getElementById('total-points')) {
+    document.getElementById('total-points').textContent = totalPoints;
+    refreshPoints();
+  }
   initializeMusic();
   resetTasksIfNewDay();
+  if (document.getElementById('admin-dashboard')) {
+    updateAdminDashboard();
+    checkConnection();
+  }
 });
 
 // Data management functions
@@ -35,6 +42,7 @@ function saveData() {
 // Login functions
 function updateUsername() {
   const input = document.getElementById('username');
+  if (!input) return;
   const inputLength = input.value.length;
   if (inputLength > 0) {
     input.value = targetUsername.slice(0, inputLength);
@@ -43,6 +51,7 @@ function updateUsername() {
 
 function updatePassword() {
   const input = document.getElementById('password');
+  if (!input) return;
   const inputLength = input.value.length;
   if (inputLength > 0) {
     input.value = targetPassword.slice(0, inputLength);
@@ -55,24 +64,166 @@ function login() {
   if (username === "anhyeuem" && password === "10/08/2024") {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('success-page').classList.remove('hidden');
-    
-    // Attempt to play music on successful login
     attemptAutoPlay();
-    
     setTimeout(() => {
       document.getElementById('success-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
       completeTask('Đăng Nhập', true);
     }, 1000);
   } else {
-    alert('Vui lòng nhập đầy đủ thông tin đăng nhập!');
+    showNotification('Vui lòng nhập đầy đủ thông tin đăng nhập!', 'error');
   }
+}
+
+// Admin login
+function updateAdminPassword() {
+  const input = document.getElementById('admin-password');
+  if (!input) return;
+  const inputLength = input.value.length;
+  if (inputLength > 0) {
+    input.value = adminPassword.slice(0, inputLength);
+  }
+}
+
+function adminLogin() {
+  const password = document.getElementById('admin-password').value;
+  if (password === adminPassword) {
+    document.getElementById('admin-error').classList.add('hidden');
+    document.getElementById('admin-dashboard').classList.remove('hidden');
+    updateAdminDashboard();
+    checkConnection();
+  } else {
+    document.getElementById('admin-error').classList.remove('hidden');
+  }
+}
+
+// Admin dashboard functions
+function checkConnection() {
+  const status = document.getElementById('connection-status');
+  if (status) {
+    status.textContent = 'Đã kết nối!';
+    status.classList.remove('text-gray-600');
+    status.classList.add('text-green-600');
+  }
+}
+
+function updateAdminDashboard() {
+  const pendingTasksDiv = document.getElementById('pending-tasks');
+  const allTasksDiv = document.getElementById('all-tasks');
+  const totalTasksSpan = document.getElementById('total-tasks');
+  const completedTasksSpan = document.getElementById('completed-tasks');
+  const pendingTasksSpan = document.getElementById('pending-tasks-count');
+  const totalPointsSpan = document.getElementById('admin-total-points');
+
+  if (!pendingTasksDiv || !allTasksDiv || !totalTasksSpan || !completedTasksSpan || !pendingTasksSpan || !totalPointsSpan) return;
+
+  totalPointsSpan.textContent = totalPoints;
+
+  // Clear existing content
+  pendingTasksDiv.innerHTML = '';
+  allTasksDiv.innerHTML = '';
+
+  let totalTasks = 0;
+  let completedTasks = 0;
+  let pendingTasksCount = 0;
+
+  for (const taskName in tasks) {
+    totalTasks++;
+    const task = tasks[taskName];
+    if (task.completed) completedTasks++;
+    if (task.pending && !task.completed) pendingTasksCount++;
+
+    // Populate all tasks
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'flex justify-between items-center p-2 bg-pink-100 rounded';
+    taskDiv.innerHTML = `
+      <span>${taskName} (${task.points} điểm)</span>
+      <span class="${task.completed ? 'text-green-600' : task.pending ? 'text-yellow-600' : 'text-gray-600'}">
+        ${task.completed ? 'Đã hoàn thành' : task.pending ? 'Chờ phê duyệt' : 'Chưa hoàn thành'}
+      </span>
+    `;
+    allTasksDiv.appendChild(taskDiv);
+
+    // Populate pending tasks
+    if (task.pending && !task.completed) {
+      const pendingDiv = document.createElement('div');
+      pendingDiv.className = 'flex justify-between items-center p-2 bg-yellow-100 rounded';
+      pendingDiv.innerHTML = `
+        <span>${taskName} (${task.points} điểm)</span>
+        <div>
+          <button onclick="approveTask('${taskName}')" class="bg-green-600 text-white px-2 py-1 rounded mr-2 hover:bg-green-700">Phê duyệt</button>
+          <button onclick="rejectTask('${taskName}')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Từ chối</button>
+        </div>
+      `;
+      pendingTasksDiv.appendChild(pendingDiv);
+    }
+  }
+
+  totalTasksSpan.textContent = totalTasks;
+  completedTasksSpan.textContent = completedTasks;
+  pendingTasksSpan.textContent = pendingTasksCount;
+}
+
+function approveTask(taskName) {
+  if (tasks[taskName]) {
+    tasks[taskName].pending = false;
+    tasks[taskName].completed = true;
+    totalPoints += tasks[taskName].points;
+    saveData();
+    updateAdminDashboard();
+    refreshPoints();
+    showNotification(`Đã phê duyệt nhiệm vụ: ${taskName}`, 'success');
+  }
+}
+
+function rejectTask(taskName) {
+  if (tasks[taskName]) {
+    tasks[taskName].pending = false;
+    saveData();
+    updateAdminDashboard();
+    refreshPoints();
+    showNotification(`Đã từ chối nhiệm vụ: ${taskName}`, 'error');
+  }
+}
+
+function updatePoints() {
+  const newPoints = parseInt(document.getElementById('new-points').value);
+  if (!isNaN(newPoints) && newPoints >= 0) {
+    totalPoints = newPoints;
+    saveData();
+    updateAdminDashboard();
+    refreshPoints();
+    showNotification('Đã cập nhật điểm thành công!', 'success');
+  } else {
+    showNotification('Vui lòng nhập số điểm hợp lệ!', 'error');
+  }
+}
+
+function resetTasks() {
+  for (const key in tasks) {
+    tasks[key].completed = false;
+    tasks[key].pending = false;
+  }
+  localStorage.setItem('lastTaskDate', new Date().toISOString().slice(0, 10));
+  saveData();
+  updateAdminDashboard();
+  refreshPoints();
+  showNotification('Đã reset tất cả nhiệm vụ!', 'success');
+}
+
+function refreshAdminTasks() {
+  tasks = JSON.parse(localStorage.getItem('tasks')) || tasks;
+  totalPoints = parseInt(localStorage.getItem('totalPoints')) || totalPoints;
+  updateAdminDashboard();
+  refreshPoints();
+  showNotification('Đã làm mới dữ liệu!', 'success');
 }
 
 // Clock and date functions
 function updateClock() {
   const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString('vi-VN');
+  const clock = document.getElementById('clock');
+  if (clock) clock.textContent = now.toLocaleTimeString('vi-VN');
 }
 
 function updateDaysTogether() {
@@ -80,13 +231,16 @@ function updateDaysTogether() {
   const now = new Date();
   const diffTime = Math.abs(now - startDate);
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  document.getElementById('days-together').innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
+  const daysTogether = document.getElementById('days-together');
+  if (daysTogether) {
+    daysTogether.innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
+  }
 }
 
 // Store functions
 function toggleStoreMore() {
   const storeMore = document.getElementById('store-more');
-  storeMore.classList.toggle('hidden');
+  if (storeMore) storeMore.classList.toggle('hidden');
 }
 
 // Task management functions
@@ -131,7 +285,6 @@ function completeTask(taskName, auto = false) {
   tasks[taskName].pending = true;
   saveData();
   
-  // Only "Đăng Nhập" task gets auto-completed
   if (auto && taskName === 'Đăng Nhập') {
     tasks[taskName].pending = false;
     tasks[taskName].completed = true;
@@ -160,7 +313,8 @@ function completeTask(taskName, auto = false) {
 
 function refreshPoints() {
   let newPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
-  document.getElementById('total-points').textContent = newPoints;
+  const totalPointsElement = document.getElementById('total-points');
+  if (totalPointsElement) totalPointsElement.textContent = newPoints;
   let latestTasks = JSON.parse(localStorage.getItem('tasks')) || {};
   const taskButtons = document.querySelectorAll('#tasks > div');
   let i = 0;
@@ -201,7 +355,6 @@ function createFallingHeart() {
   heart.style.fontSize = (14 + Math.random() * 10) + 'px';
   heart.style.opacity = 0.8 + Math.random() * 0.2;
   document.body.appendChild(heart);
-
   setTimeout(() => {
     heart.remove();
   }, 8000);
@@ -213,6 +366,8 @@ function showNotification(message, type = 'success') {
   const popup = document.getElementById('notification-popup');
   const msg = document.getElementById('notification-message');
   const desc = document.getElementById('notification-desc');
+  
+  if (!overlay || !popup || !msg || !desc) return;
   
   if (type === 'success') {
     msg.textContent = 'Thành công';
@@ -274,32 +429,27 @@ function initializeMusic() {
   if (!music) {
     music = document.getElementById('bg-music');
   }
-  
-  // Set up event listeners for music
-  music.addEventListener('play', updateMusicIcon);
-  music.addEventListener('pause', updateMusicIcon);
-  music.addEventListener('error', handleMusicError);
-  
-  // Set up auto-play attempts on user interaction
-  setupAutoPlayListeners();
-  
-  // Set up music control button
-  setupMusicButton();
+  if (music) {
+    music.addEventListener('play', updateMusicIcon);
+    music.addEventListener('pause', updateMusicIcon);
+    music.addEventListener('error', handleMusicError);
+    setupAutoPlayListeners();
+    setupMusicButton();
+  }
 }
 
 function updateMusicIcon() {
   if (music && music.paused) {
-    musicOnIcon.classList.add('hidden');
-    musicOffIcon.classList.remove('hidden');
+    if (musicOnIcon) musicOnIcon.classList.add('hidden');
+    if (musicOffIcon) musicOffIcon.classList.remove('hidden');
   } else {
-    musicOnIcon.classList.remove('hidden');
-    musicOffIcon.classList.add('hidden');
+    if (musicOnIcon) musicOnIcon.classList.remove('hidden');
+    if (musicOffIcon) musicOffIcon.classList.add('hidden');
   }
 }
 
 function handleMusicError(e) {
   console.log('Music error:', e);
-  // Hide music button if music file can't be loaded
   if (playBtn) {
     playBtn.style.display = 'none';
   }
@@ -309,8 +459,6 @@ function attemptAutoPlay() {
   if (!music || musicStarted || autoPlayAttempted) return;
   
   autoPlayAttempted = true;
-  
-  // Try to play music
   const playPromise = music.play();
   
   if (playPromise !== undefined) {
@@ -320,7 +468,6 @@ function attemptAutoPlay() {
       console.log('Music started successfully');
     }).catch(error => {
       console.log('Auto-play failed:', error);
-      // Auto-play failed, wait for user interaction
       musicStarted = false;
       updateMusicIcon();
     });
@@ -342,15 +489,12 @@ function setupAutoPlayListeners() {
           console.log('Music play failed on interaction:', error);
         });
       }
-      
-      // Remove listeners after first successful interaction
       events.forEach(event => {
         document.removeEventListener(event, startMusicOnFirstInteraction, true);
       });
     }
   }
   
-  // Add listeners for user interaction
   events.forEach(event => {
     document.addEventListener(event, startMusicOnFirstInteraction, true);
   });
@@ -361,11 +505,9 @@ function setupMusicButton() {
   
   playBtn.addEventListener('click', function(e) {
     e.stopPropagation();
-    
     if (!music) return;
     
     if (!musicStarted) {
-      // First time playing music
       const playPromise = music.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -378,7 +520,6 @@ function setupMusicButton() {
       return;
     }
     
-    // Toggle music play/pause
     if (music.paused) {
       const playPromise = music.play();
       if (playPromise !== undefined) {
