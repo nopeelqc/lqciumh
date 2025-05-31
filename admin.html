@@ -23,7 +23,10 @@
         <button onclick="setCustomPoints()" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Lưu điểm</button>
       </div>
       <div id="pending-tasks" class="space-y-4"></div>
-      <button onclick="logoutAdmin()" class="mt-4 bg-red-600 text-white p-2 rounded hover:bg-red-700 w-full">Thoát</button>
+      <button onclick="refreshTasks()" class="mt-4 bg-green-600 text-white p-2 rounded hover:bg-green-700 w-full flex items-center justify-center gap-2">
+        <i class="fas fa-sync-alt"></i>
+        Làm mới
+      </button>
     </div>
   </div>
   <script>
@@ -90,11 +93,22 @@
       }
     }
 
-    function logoutAdmin() {
-      document.getElementById('admin-panel').classList.add('hidden');
-      document.getElementById('admin-login').classList.remove('hidden');
-      document.getElementById('admin-password').value = '';
-      document.getElementById('admin-login-error').classList.add('hidden');
+    function refreshTasks() {
+      // Tải lại dữ liệu từ localStorage để kiểm tra yêu cầu mới
+      tasks = JSON.parse(localStorage.getItem('tasks')) || {
+        'Đăng Nhập': { points: 1, completed: false, pending: false },
+        'Nói iu ank': { points: 1, completed: false, pending: false },
+        'Không bỏ bữa': { points: 1, completed: false, pending: false },
+        'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
+      };
+      totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+      
+      // Cập nhật giao diện
+      updateTotalPoints();
+      updatePendingTasks();
+      
+      // Hiển thị thông báo
+      alert('Đã làm mới! Kiểm tra xem có yêu cầu mới không.');
     }
 
     function setCustomPoints() {
@@ -110,4 +124,4 @@
     }
   </script>
 </body>
-</html> 
+</html>
