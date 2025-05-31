@@ -116,6 +116,7 @@
       if (username === adminUsername && password === adminPassword) {
         document.getElementById('admin-login-page').classList.add('hidden');
         document.getElementById('admin-main-page').classList.remove('hidden');
+        document.getElementById('admin-error').classList.add('hidden');
         refreshAdmin();
       } else {
         document.getElementById('admin-error').classList.remove('hidden');
@@ -124,7 +125,10 @@
 
     async function refreshAdmin() {
       const data = await fetchDataFromServer();
-      if (!data) return;
+      if (!data) {
+        document.getElementById('connection-status').textContent = 'Lỗi kết nối';
+        return;
+      }
 
       const tasks = data.tasks || {};
       document.getElementById('admin-total-points').textContent = data.totalPoints || 0;
@@ -193,6 +197,7 @@
       const newPoints = parseInt(pointsInput);
       if (!isNaN(newPoints)) {
         const data = await fetchDataFromServer();
+        if (!data) return;
         data.totalPoints = newPoints;
         await saveData(data);
         document.getElementById('admin-total-points').textContent = newPoints;

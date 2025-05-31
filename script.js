@@ -150,22 +150,18 @@ async function completeTask(taskName, auto = false) {
   await resetTasksIfNewDay();
   if (tasks[taskName].completed) {
     document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
-    document.getElementById('task-success-desc').textContent = '';
-    document.getElementById('task-success-page').classList.remove('hidden');
+    document.getElementById('task-completed-page').classList.remove('hidden');
     setTimeout(() => {
-      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('task-completed-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
     }, 2000);
     return;
   }
   if (tasks[taskName].pending) {
     document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
-    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
-    document.getElementById('task-success-page').classList.remove('hidden');
+    document.getElementById('task-pending-page').classList.remove('hidden');
     setTimeout(() => {
-      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('task-pending-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
     }, 2000);
     return;
@@ -181,20 +177,16 @@ async function completeTask(taskName, auto = false) {
     document.getElementById('total-points').textContent = totalPoints;
     await saveData();
     document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
-    document.getElementById('task-success-desc').textContent = '';
-    document.getElementById('task-success-page').classList.remove('hidden');
+    document.getElementById('task-completed-page').classList.remove('hidden');
     setTimeout(() => {
-      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('task-completed-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
     }, 2000);
   } else {
     document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
-    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
-    document.getElementById('task-success-page').classList.remove('hidden');
+    document.getElementById('task-pending-page').classList.remove('hidden');
     setTimeout(() => {
-      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('task-pending-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
     }, 2000);
   }
@@ -363,29 +355,27 @@ function attemptAutoPlay() {
 }
 
 function setupAutoPlayListeners() {
-  const events = ['click', 'touchstart', 'keydown'];
+  const events = ['click', 'touchstart', ''];
   
-  function startMusicOnFirstInteraction(e) {
-    if (!musicStarted && music) {
-      const playPromise = music.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          musicStarted = true;
-          updateMusicIcon();
-          console.log('Music started on user interaction');
-        }).catch(error => {
-          console.log('Music play failed on interaction:', error);
-        });
+  function startMusicOnClick(event) {
+      if (!musicStarted && music) {
+          music.play().then(() => {
+              musicStarted = true;
+              updateMusicIcon();
+              console.log('Music started on user interaction');
+          }).catch(error => {
+              console.log('Error playing music:', error);
+          });
+
+          // Clean up event listeners after successful playback
+          events.forEach(evt => {
+              document.removeEventListener(evt, startMusicOnClick, true);
+          });
       }
-      
-      events.forEach(event => {
-        document.removeEventListener(event, startMusicOnFirstInteraction, true);
-      });
-    }
   }
-  
+
   events.forEach(event => {
-    document.addEventListener(event, startMusicOnFirstInteraction, true);
+      document.addEventListener(event, startMusicOnClick, true);
   });
 }
 
@@ -416,7 +406,7 @@ function setupMusicButton() {
         playPromise.then(() => {
           updateMusicIcon();
         }).catch(error => {
-          console.log('Music resume failed:', error);
+          console.log('Music play failed:', error);
         });
       }
     } else {
@@ -426,10 +416,10 @@ function setupMusicButton() {
   });
 }
 
-// Initialize intervals and setup
-setInterval(updateClock, 1000);
+// Initialize intervals
+setInterval(updateClock, 2000);
 setInterval(createFallingHeart, 2500);
 
-// Run initial setup
+// Run initializations
 updateClock();
 updateDaysTogether();
