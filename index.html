@@ -3,163 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng Nhập</title>
+  <title>iumhcute</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
-  <!-- Thêm Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
 </head>
-<body class="bg-pink-50 min-h-screen">
-  <div id="login-page" class="flex items-center justify-center min-h-screen">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-      <h1 class="text-2xl font-bold text-center text-pink-600 mb-4">Đăng Nhập</h1>
+<body class="bg-pink-100 text-gray-800 font-sans overflow-x-hidden">
+  <div id="login-page" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <h1 class="text-2xl sm:text-3xl font-bold text-pink-600 text-center mb-4">Đăng Nhập</h1>
       <div class="space-y-4">
-        <input id="username" type="text" placeholder="Tên đăng nhập" oninput="updateUsername()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
-        <input id="password" type="password" placeholder="Mật khẩu" oninput="updatePassword()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-600">
-        <button onclick="login()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đăng Nhập</button>
+        <input id="username" type="text" placeholder="Tên đăng nhập" oninput="updateUsername()" class="w-full p-2 border rounded text-base">
+        <input id="password" type="password" placeholder="Mật khẩu" oninput="updatePassword()" class="w-full p-2 border rounded text-base">
+        <button onclick="login()" class="w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base sm:text-lg">Đăng Nhập</button>
       </div>
     </div>
   </div>
 
-  <div id="success-page" class="flex items-center justify-center min-h-screen hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-      <h1 class="text-2xl font-bold text-pink-600 mb-2">Đăng nhập thành công!</h1>
-      <p class="text-gray-600">Đang chuyển hướng...</p>
+  <div id="success-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Đăng nhập thành công!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
     </div>
   </div>
 
-  <div id="task-success-page" class="flex items-center justify-center min-h-screen hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-      <h1 id="task-success-title" class="text-2xl font-bold text-pink-600 mb-2">Chưa hoàn thành</h1>
-      <p id="task-success-desc" class="text-gray-600">Đang gửi yêu cầu phê duyệt...</p>
+  <div id="task-success-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 id="task-success-title" class="text-3xl font-bold text-pink-600 mb-4">Chưa hoàn thành</h1>
+      <p id="task-success-desc" class="text-gray-700">Đang gửi yêu cầu phê duyệt...</p>
     </div>
   </div>
 
-  <div id="task-completed-page" class="flex items-center justify-center min-h-screen hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-      <h1 class="text-2xl font-bold text-pink-600 mb-2">Nhiệm vụ đã hoàn thành!</h1>
-      <p class="text-gray-600">Đang chuyển hướng...</p>
+  <div id="task-already-completed-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm vụ đã hoàn thành!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
     </div>
   </div>
 
-  <div id="task-pending-page" class="flex items-center justify-center min-h-screen hidden">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-      <h1 class="text-2xl font-bold text-pink-600 mb-2">Nhiệm vụ đang chờ phê duyệt!</h1>
-      <p class="text-gray-600">Đang chuyển hướng...</p>
+  <div id="task-pending-page" class="hidden min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm vụ đang chờ phê duyệt!</h1>
+      <p class="text-gray-700">Đang chuyển hướng...</p>
     </div>
   </div>
 
-  <div id="main-page" class="p-6 hidden">
-    <div class="flex justify-between items-center mb-4">
-      <div>
-        <h1 id="clock" class="text-xl font-bold text-pink-600"></h1>
-        <p id="days-together" class="text-gray-600"></p>
+  <div id="main-page" class="hidden min-h-screen flex flex-col items-center">
+    <div class="bg-pink-600 text-white w-full py-4 text-center">
+      <h1 class="text-4xl font-bold">Chúng Mình</h1>
+    </div>
+
+    <div class="my-8 text-center">
+      <div id="clock" class="text-5xl font-bold text-pink-600"></div>
+      <div id="days-together" class="text-2xl mt-4 text-gray-700"></div>
+    </div>
+
+    <div class="w-full max-w-2xl p-4">
+      <h2 class="text-3xl font-bold text-pink-600 mb-4">Cửa Hàng Tình Yêu</h2>
+      <div id="store-main" class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Đám cưới siu hoành tráng</h3>
+          <p>Đổi bằng <span id="wedding-points">999999999999999</span> điểm</p>
+          <button onclick="redeemWedding()" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
       </div>
-      <div id="play-music-btn" class="flex items-center space-x-2 cursor-pointer">
-        <span id="music-on" class="hidden">🎵</span>
-        <span id="music-off">🔇</span>
+      <button onclick="toggleStoreMore()" class="mt-4 bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Xem thêm</button>
+      <div id="store-more" class="hidden mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 1</h3>
+          <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 1', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 2</h3>
+          <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 2', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Voice đặc biệt 3</h3>
+          <p>Đổi bằng 28 điểm</p>
+          <button onclick="redeemStore('Voice đặc biệt 3', 28)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Ôm an ủi</h3>
+          <p>Đổi bằng 1 điểm</p>
+          <button onclick="redeemStore('Ôm an ủi', 1)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
+        <div class="bg-pink-200 p-4 rounded-lg shadow">
+          <h3 class="text-xl font-semibold">Nụ Hôn tình iu</h3>
+          <p>Đổi bằng 1 điểm</p>
+          <button onclick="redeemStore('Nụ Hôn tình iu', 1)" class="mt-2 w-full bg-pink-600 text-white p-2 rounded hover:bg-pink-700 text-base">Đổi</button>
+        </div>
       </div>
     </div>
 
-    <audio id="bg-music" loop>
-      <source src="music.mp3" type="audio/mpeg">
-    </audio>
-
-    <h1 class="text-2xl font-bold text-center text-pink-600 mb-4">Cửa Hàng Tình Yêu</h1>
-    <div class="grid grid-cols-1 gap-4 mb-4">
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Đám cưới siu hoành tráng</h2>
-          <p class="text-gray-600">Đổi bằng 999999999999999 điểm</p>
-        </div>
-        <button onclick="redeemWedding()" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
+    <div class="w-full max-w-2xl p-4">
+      <h2 class="text-3xl font-bold text-pink-600 mb-4">Nhiệm Vụ Tình Yêu</h2>
+      <div class="text-xl text-gray-700 mb-4">Tổng điểm của bé là: <span id="total-points">0</span>
+        <button id="refresh-points" onclick="refreshPoints()" class="ml-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Cập nhật điểm</button>
       </div>
-    </div>
-    <div class="text-center mb-4">
-      <button onclick="toggleStoreMore()" class="text-pink-600 underline">Xem thêm</button>
-    </div>
-    <div id="store-more" class="grid grid-cols-1 gap-4 hidden">
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Voice đặc biệt 1</h2>
-          <p class="text-gray-600">Đổi bằng 28 điểm</p>
+      <div id="tasks" class="space-y-4">
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Đăng Nhập</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Đăng Nhập')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
         </div>
-        <button onclick="redeemStore('Voice đặc biệt 1', 28)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
-      </div>
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Voice đặc biệt 2</h2>
-          <p class="text-gray-600">Đổi bằng 28 điểm</p>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Nói iu ank</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Nói iu ank')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
         </div>
-        <button onclick="redeemStore('Voice đặc biệt 2', 28)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
-      </div>
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Voice đặc biệt 3</h2>
-          <p class="text-gray-600">Đổi bằng 28 điểm</p>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Không bỏ bữa</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Không bỏ bữa')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
         </div>
-        <button onclick="redeemStore('Voice đặc biệt 3', 28)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
-      </div>
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Ôm an ủi</h2>
-          <p class="text-gray-600">Đổi bằng 1 điểm</p>
+        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <div class="flex items-center">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            <div>
+              <h3 class="text-xl font-semibold">Ngoan - Xink - Iu</h3>
+              <p>1 điểm</p>
+            </div>
+          </div>
+          <button onclick="completeTask('Ngoan - Xink - Iu')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700">Hoàn thành</button>
         </div>
-        <button onclick="redeemStore('Ôm an ủi', 1)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
-      </div>
-      <div class="bg-pink-200 p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Nụ Hôn tình iu</h2>
-          <p class="text-gray-600">Đổi bằng 1 điểm</p>
-        </div>
-        <button onclick="redeemStore('Nụ Hôn tình iu', 1)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Đổi</button>
-      </div>
-    </div>
-
-    <h1 class="text-2xl font-bold text-center text-pink-600 mb-4">Nhiệm Vụ Tình Yêu</h1>
-    <div class="text-center mb-4">
-      <p class="text-lg text-gray-600">Tổng điểm của bé là: <span id="total-points" class="font-bold text-pink-600">0</span></p>
-      <button onclick="refreshPoints()" class="mt-2 bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Cập nhật điểm</button>
-    </div>
-    <div id="tasks" class="grid grid-cols-1 gap-4">
-      <div class="bg-white p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Đăng Nhập</h2>
-          <p class="text-gray-600">1 điểm</p>
-        </div>
-        <button onclick="completeTask('Đăng Nhập', true)" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Hoàn thành</button>
-      </div>
-      <div class="bg-white p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Nói iu ank</h2>
-          <p class="text-gray-600">1 điểm</p>
-        </div>
-        <button onclick="completeTask('Nói iu ank')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Hoàn thành</button>
-      </div>
-      <div class="bg-white p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Không bỏ bữa</h2>
-          <p class="text-gray-600">1 điểm</p>
-        </div>
-        <button onclick="completeTask('Không bỏ bữa')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Hoàn thành</button>
-      </div>
-      <div class="bg-white p-4 rounded-lg flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-semibold text-pink-600">Ngoan - Xink - Iu</h2>
-          <p class="text-gray-600">1 điểm</p>
-        </div>
-        <button onclick="completeTask('Ngoan - Xink - Iu')" class="bg-pink-600 text-white p-2 rounded hover:bg-pink-700 transition-all">Hoàn thành</button>
       </div>
     </div>
   </div>
 
-  <div id="notification-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 pointer-events-none transition-all">
-    <div id="notification-popup" class="bg-white p-6 rounded-lg shadow-lg text-center">
-      <h1 id="notification-message" class="text-2xl font-bold text-pink-600 mb-2"></h1>
-      <p id="notification-desc" class="text-gray-600"></p>
+  <div id="notification-overlay" class="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+    <div id="notification-popup" class="bg-white rounded-xl shadow-2xl px-8 py-6 text-center min-w-[220px] max-w-xs">
+      <h2 id="notification-message" class="text-2xl font-bold mb-2 text-pink-600">Thông báo</h2>
+      <p id="notification-desc" class="text-base text-gray-700"></p>
     </div>
   </div>
+
+  <button id="play-music-btn" class="fixed bottom-4 right-4 z-50 bg-pink-600 text-white p-3 rounded-full shadow-lg">
+    <i id="music-on" class="fas fa-music"></i>
+    <i id="music-off" class="fas fa-volume-mute hidden"></i>
+  </button>
+
+  <audio id="bg-music" src="nhaciumh.mp3" loop preload="auto" style="display:none;"></audio>
 
   <script src="script.js"></script>
 </body>
