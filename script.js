@@ -1,32 +1,29 @@
-// Firebase Configuration
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, get, onValue, child } from 'firebase/database';
-
 const firebaseConfig = {
-  // Thay thế bằng config của bạn từ Firebase Console
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "AIzaSyCmrVzBq9a2o26lOapC3UJzVtTs2GaH9hI",
+  authDomain: "lqciumh-468fa.firebaseapp.com",
+  databaseURL: "https://lqciumh-468fa-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "lqciumh-468fa",
+  storageBucket: "lqciumh-468fa.firebasestorage.app",
+  messagingSenderId: "888046777165",
+  appId: "1:888046777165:web:8dcbc1feebd846e944bd04",
+  measurementId: "G-QPWP9DW56Y"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const tasksRef = db.ref('tasks');
+const pointsRef = db.ref('totalPoints');
 
-// Global variables - modified to sync with Firebase
-let tasks = {
+// Global variables
+let tasks = JSON.parse(localStorage.getItem('tasks')) || {
   'Đăng Nhập': { points: 1, completed: false, pending: false },
   'Nói iu ank': { points: 1, completed: false, pending: false },
   'Không bỏ bữa': { points: 1, completed: false, pending: false },
   'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
 };
-let totalPoints = 0;
+let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
 
-// Music variables (unchanged)
+// Music variables
 var music = document.getElementById('bg-music');
 var playBtn = document.getElementById('play-music-btn');
 var musicOnIcon = document.getElementById('music-on');
@@ -38,113 +35,65 @@ let autoPlayAttempted = false;
 const targetUsername = "anhyeuem";
 const targetPassword = "10/08/2024";
 
-// Firebase Database References
-const tasksRef = ref(database, 'tasks');
-const pointsRef = ref(database, 'totalPoints');
-const lastDateRef = ref(database, 'lastTaskDate');
-
 // Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadDataFromFirebase();
+document.addEventListener('DOMContentLoaded', () => {
+  // Tải dữ liệu ban đầu từ Firebase
+  tasksRef.once('value', (snapshot) => {
+    const firebaseTasks = snapshot.val();
+    if (firebaseTasks) {
+      tasks = firebaseTasks;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    } else {
+      tasksRef.set(tasks); // Đẩy tasks cục bộ lên Firebase nếu chưa có
+    }
+    refreshPoints();
+  });
+
+  pointsRef.once('value', (snapshot) => {
+    const firebasePoints = snapshot.val();
+    if (firebasePoints !== null) {
+      totalPoints = firebasePoints;
+      localStorage.setItem('totalPoints', totalPoints);
+    } else {
+      pointsRef.set(totalPoints); // Đẩy points cục bộ lên Firebase nếu chưa có
+    }
+    document.getElementById('total-points').textContent = totalPoints;
+  });
+
+  // Lắng nghe cập nhật thời gian thực từ Firebase
+  tasksRef.on('value', (snapshot) => {
+    const updatedTasks = snapshot.val();
+    if (updatedTasks) {
+      tasks = updatedTasks;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      refreshPoints();
+    }
+  });
+
+  pointsRef.on('value', (snapshot) => {
+    const updatedPoints = snapshot.val();
+    if (updatedPoints !== null) {
+      totalPoints = updatedPoints;
+      localStorage.setItem('totalPoints', totalPoints);
+      document.getElementById('total-points').textContent = totalPoints;
+    }
+  });
+
+  // Mã khởi tạo hiện có
+  document.getElementById('total-points').textContent = totalPoints;
   initializeMusic();
-  await resetTasksIfNewDay();
-  setupRealtimeListeners();
+  resetTasksIfNewDay();
 });
 
-// Firebase data management functions
-async function loadDataFromFirebase() {
-  try {
-    const snapshot = await get(ref(database));
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      
-      // Load tasks
-      if (data.tasks) {
-        tasks = { ...tasks, ...data.tasks };
-      }
-      
-      // Load points
-      if (data.totalPoints !== undefined) {
-        totalPoints = data.totalPoints;
-      }
-      
-      // Update UI
-      document.getElementById('total-points').textContent = totalPoints;
-      refreshPoints();
-      
-      console.log('Data loaded from Firebase successfully');
-    } else {
-      // Initialize Firebase with default data
-      await saveDataToFirebase();
-      console.log('Initialized Firebase with default data');
-    }
-  } catch (error) {
-    console.error('Error loading data from Firebase:', error);
-    // Fallback to localStorage
-    loadDataFromLocalStorage();
-  }
+// Data management functions
+function saveData() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  localStorage.setItem('totalPoints', totalPoints);
+  tasksRef.set(tasks);
+  pointsRef.set(totalPoints);
 }
 
-function loadDataFromLocalStorage() {
-  const savedTasks = localStorage.getItem('tasks');
-  const savedPoints = localStorage.getItem('totalPoints');
-  
-  if (savedTasks) {
-    tasks = JSON.parse(savedTasks);
-  }
-  if (savedPoints) {
-    totalPoints = parseInt(savedPoints);
-  }
-  
-  document.getElementById('total-points').textContent = totalPoints;
-}
-
-async function saveDataToFirebase() {
-  try {
-    // Save tasks
-    await set(tasksRef, tasks);
-    
-    // Save total points
-    await set(pointsRef, totalPoints);
-    
-    // Also save to localStorage as backup
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    localStorage.setItem('totalPoints', totalPoints.toString());
-    
-    console.log('Data saved to Firebase successfully');
-  } catch (error) {
-    console.error('Error saving data to Firebase:', error);
-    // Fallback to localStorage only
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    localStorage.setItem('totalPoints', totalPoints.toString());
-  }
-}
-
-// Setup realtime listeners for live updates
-function setupRealtimeListeners() {
-  // Listen for tasks changes
-  onValue(tasksRef, (snapshot) => {
-    if (snapshot.exists()) {
-      tasks = snapshot.val();
-      refreshPoints();
-    }
-  });
-  
-  // Listen for points changes
-  onValue(pointsRef, (snapshot) => {
-    if (snapshot.exists()) {
-      totalPoints = snapshot.val();
-      document.getElementById('total-points').textContent = totalPoints;
-    }
-  });
-}
-
-// Modified saveData function
-async function saveData() {
-  await saveDataToFirebase();
-}
-
-// Login functions (unchanged)
+// Login functions
 function updateUsername() {
   const input = document.getElementById('username');
   const inputLength = input.value.length;
@@ -168,6 +117,7 @@ function login() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('success-page').classList.remove('hidden');
     
+    // Attempt to play music on successful login
     attemptAutoPlay();
     
     setTimeout(() => {
@@ -180,7 +130,7 @@ function login() {
   }
 }
 
-// Clock and date functions (unchanged)
+// Clock and date functions
 function updateClock() {
   const now = new Date();
   document.getElementById('clock').textContent = now.toLocaleTimeString('vi-VN');
@@ -194,97 +144,88 @@ function updateDaysTogether() {
   document.getElementById('days-together').innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
 }
 
-// Store functions (unchanged)
+// Store functions
 function toggleStoreMore() {
   const storeMore = document.getElementById('store-more');
   storeMore.classList.toggle('hidden');
 }
 
-// Modified task management functions
-async function resetTasksIfNewDay() {
+// Task management functions
+function resetTasksIfNewDay() {
   const today = new Date().toISOString().slice(0, 10);
-  
-  try {
-    const snapshot = await get(lastDateRef);
-    const lastDate = snapshot.exists() ? snapshot.val() : null;
-    
-    if (lastDate !== today) {
-      // Reset all tasks
-      for (const key in tasks) {
-        tasks[key].completed = false;
-        tasks[key].pending = false;
-      }
-      
-      // Save new date and reset tasks
-      await set(lastDateRef, today);
-      await saveData();
-      
-      console.log('Tasks reset for new day');
+  const lastDate = localStorage.getItem('lastTaskDate');
+  if (lastDate !== today) {
+    for (const key in tasks) {
+      tasks[key].completed = false;
+      tasks[key].pending = false;
     }
-  } catch (error) {
-    console.error('Error checking/resetting daily tasks:', error);
-    // Fallback to localStorage
-    const lastDate = localStorage.getItem('lastTaskDate');
-    if (lastDate !== today) {
-      for (const key in tasks) {
-        tasks[key].completed = false;
-        tasks[key].pending = false;
-      }
-      localStorage.setItem('lastTaskDate', today);
-      await saveData();
-    }
+    localStorage.setItem('lastTaskDate', today);
+    saveData();
   }
 }
 
-async function completeTask(taskName, auto = false) {
-  await resetTasksIfNewDay();
-  
+function completeTask(taskName, auto = false) {
+  resetTasksIfNewDay();
   if (tasks[taskName].completed) {
-    showTaskStatus('Đã hoàn thành!', '');
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+    document.getElementById('task-success-desc').textContent = '';
+    document.getElementById('task-success-page').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('main-page').classList.remove('hidden');
+    }, 2000);
     return;
   }
-  
   if (tasks[taskName].pending) {
-    showTaskStatus('Chưa hoàn thành', 'Đang gửi yêu cầu phê duyệt...');
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
+    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
+    document.getElementById('task-success-page').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('main-page').classList.remove('hidden');
+    }, 2000);
     return;
   }
   
   tasks[taskName].pending = true;
-  await saveData();
+  saveData();
   
-  // Only "Đăng Nhập" task gets auto-completed
   if (auto && taskName === 'Đăng Nhập') {
     tasks[taskName].pending = false;
     tasks[taskName].completed = true;
     totalPoints += tasks[taskName].points;
     document.getElementById('total-points').textContent = totalPoints;
-    await saveData();
-    showTaskStatus('Đã hoàn thành!', '');
+    saveData();
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+    document.getElementById('task-success-desc').textContent = '';
+    document.getElementById('task-success-page').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('main-page').classList.remove('hidden');
+    }, 2000);
   } else {
-    showTaskStatus('Chưa hoàn thành', 'Đang gửi yêu cầu phê duyệt...');
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
+    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
+    document.getElementById('task-success-page').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('main-page').classList.remove('hidden');
+    }, 2000);
   }
 }
 
-function showTaskStatus(title, desc) {
-  document.getElementById('main-page').classList.add('hidden');
-  document.getElementById('task-success-title').textContent = title;
-  document.getElementById('task-success-desc').textContent = desc;
-  document.getElementById('task-success-page').classList.remove('hidden');
-  setTimeout(() => {
-    document.getElementById('task-success-page').classList.add('hidden');
-    document.getElementById('main-page').classList.remove('hidden');
-  }, 2000);
-}
-
-async function refreshPoints() {
-  // Data is already synced via Firebase listeners
-  // Just update the UI
-  document.getElementById('total-points').textContent = totalPoints;
-  
+function refreshPoints() {
+  let newPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+  document.getElementById('total-points').textContent = newPoints;
+  let latestTasks = JSON.parse(localStorage.getItem('tasks')) || {};
   const taskButtons = document.querySelectorAll('#tasks > div');
   let i = 0;
-  for (const taskName in tasks) {
-    const task = tasks[taskName];
+  for (const taskName in latestTasks) {
+    const task = latestTasks[taskName];
     const taskDiv = taskButtons[i];
     if (taskDiv) {
       const btn = taskDiv.querySelector('button');
@@ -309,7 +250,7 @@ async function refreshPoints() {
   }
 }
 
-// Heart animation functions (unchanged)
+// Heart animation functions
 function createFallingHeart() {
   const heart = document.createElement('div');
   heart.className = 'heart';
@@ -326,7 +267,7 @@ function createFallingHeart() {
   }, 8000);
 }
 
-// Notification functions (unchanged)
+// Notification functions
 function showNotification(message, type = 'success') {
   const overlay = document.getElementById('notification-overlay');
   const popup = document.getElementById('notification-popup');
@@ -354,20 +295,23 @@ function showNotification(message, type = 'success') {
   }, 1800);
 }
 
-// Store redemption functions - modified to use Firebase
-async function redeemWedding() {
+// Store redemption functions
+function redeemWedding() {
+  let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
   const weddingCost = 999999999999999;
   if (totalPoints >= weddingCost) {
     showNotification('Chờ Anh Nha, Vợ Yêu', 'success');
     totalPoints -= weddingCost;
-    await saveData();
+    localStorage.setItem('totalPoints', totalPoints);
+    pointsRef.set(totalPoints);
     document.getElementById('total-points').textContent = totalPoints;
   } else {
     showNotification('bé không đủ điểm òyy', 'error');
   }
 }
 
-async function redeemStore(itemName, cost) {
+function redeemStore(itemName, cost) {
+  let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
   if (totalPoints >= cost) {
     let successMsg = 'Đã đổi thành công: ' + itemName + '!';
     if (itemName.startsWith('Voice đặc biệt')) {
@@ -379,24 +323,29 @@ async function redeemStore(itemName, cost) {
     }
     showNotification(successMsg, 'success');
     totalPoints -= cost;
-    await saveData();
+    localStorage.setItem('totalPoints', totalPoints);
+    pointsRef.set(totalPoints);
     document.getElementById('total-points').textContent = totalPoints;
   } else {
     showNotification('bé không đủ điểm òyy', 'error');
   }
 }
 
-// Music functions (unchanged - keeping all existing music functionality)
+// Music functions
 function initializeMusic() {
   if (!music) {
     music = document.getElementById('bg-music');
   }
   
+  // Set up event listeners for music
   music.addEventListener('play', updateMusicIcon);
   music.addEventListener('pause', updateMusicIcon);
   music.addEventListener('error', handleMusicError);
   
+  // Set up auto-play attempts on user interaction
   setupAutoPlayListeners();
+  
+  // Set up music control button
   setupMusicButton();
 }
 
@@ -412,6 +361,7 @@ function updateMusicIcon() {
 
 function handleMusicError(e) {
   console.log('Music error:', e);
+  // Hide music button if music file can't be loaded
   if (playBtn) {
     playBtn.style.display = 'none';
   }
@@ -422,6 +372,7 @@ function attemptAutoPlay() {
   
   autoPlayAttempted = true;
   
+  // Try to play music
   const playPromise = music.play();
   
   if (playPromise !== undefined) {
@@ -431,6 +382,7 @@ function attemptAutoPlay() {
       console.log('Music started successfully');
     }).catch(error => {
       console.log('Auto-play failed:', error);
+      // Auto-play failed, wait for user interaction
       musicStarted = false;
       updateMusicIcon();
     });
@@ -453,12 +405,14 @@ function setupAutoPlayListeners() {
         });
       }
       
+      // Remove listeners after first successful interaction
       events.forEach(event => {
         document.removeEventListener(event, startMusicOnFirstInteraction, true);
       });
     }
   }
   
+  // Add listeners for user interaction
   events.forEach(event => {
     document.addEventListener(event, startMusicOnFirstInteraction, true);
   });
@@ -473,6 +427,7 @@ function setupMusicButton() {
     if (!music) return;
     
     if (!musicStarted) {
+      // First time playing music
       const playPromise = music.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -485,6 +440,7 @@ function setupMusicButton() {
       return;
     }
     
+    // Toggle music play/pause
     if (music.paused) {
       const playPromise = music.play();
       if (playPromise !== undefined) {
