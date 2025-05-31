@@ -1,8 +1,8 @@
 let tasks = JSON.parse(localStorage.getItem('tasks')) || {
-  'Đăng Nhập': { points: 1, completed: false, pending: false },
-  'Nói iu ank': { points: 1, completed: false, pending: false },
-  'Không bỏ bữa': { points: 1, completed: false, pending: false },
-  'Ngoan - Xink - Iu': { points: 1, completed: false, pending: false }
+  'Đăng Nhập': { points: 1, completed: false },
+  'Nói iu ank': { points: 1, completed: false },
+  'Không bỏ bữa': { points: 1, completed: false },
+  'Ngoan - Xink - Iu': { points: 1, completed: false }
 };
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
 
@@ -15,7 +15,6 @@ let autoPlayAttempted = false;
 
 const targetUsername = "anhyeuem";
 const targetPassword = "10/08/2024";
-const adminPassword = "lqciumhnhieulam...";
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('total-points')) {
@@ -24,10 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initializeMusic();
   resetTasksIfNewDay();
-  if (document.getElementById('admin-dashboard')) {
-    updateAdminDashboard();
-    checkConnection();
-  }
 });
 
 function saveData() {
@@ -53,6 +48,18 @@ function updatePassword() {
   }
 }
 
+function togglePassword() {
+  const passwordInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+  } else {
+    passwordInput.type = 'password';
+    eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+  }
+}
+
 function login() {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
@@ -70,186 +77,12 @@ function login() {
   }
 }
 
-function updateAdminPassword() {
-  const input = document.getElementById('admin-password');
-  if (!input) return;
-  const inputLength = input.value.length;
-  if (inputLength > 0) {
-    input.value = adminPassword.slice(0, inputLength);
-  }
-}
-
-function adminLogin() {
-  const password = document.getElementById('admin-password').value;
-  if (password === adminPassword) {
-    document.getElementById('admin-error').classList.add('hidden');
-    document.getElementById('admin-dashboard').classList.remove('hidden');
-    updateAdminDashboard();
-    checkConnection();
-  } else {
-    document.getElementById('admin-error').classList.remove('hidden');
-  }
-}
-
-function checkConnection() {
-  const status = document.getElementById('connection-status');
-  if (status) {
-    status.textContent = 'Đã kết nối!';
-    status.classList.remove('text-gray-600');
-    status.classList.add('text-green-600');
-  }
-}
-
-function updateAdminDashboard() {
-  const pendingTasksDiv = document.getElementById('pending-tasks');
-  const allTasksDiv = document.getElementById('all-tasks');
-  const totalTasksSpan = document.getElementById('total-tasks');
-  const completedTasksSpan = document.getElementById('completed-tasks');
-  const pendingTasksSpan = document.getElementById('pending-tasks-count');
-  const totalPointsSpan = document.getElementById('admin-total-points');
-
-  if (!pendingTasksDiv || !allTasksDiv || !totalTasksSpan || !completedTasksSpan || !pendingTasksSpan || !totalPointsSpan) return;
-
-  totalPointsSpan.textContent = totalPoints;
-
-  pendingTasksDiv.innerHTML = '';
-  allTasksDiv.innerHTML = '';
-
-  let totalTasks = 0;
-  let completedTasks = 0;
-  let pendingTasksCount = 0;
-
-  for (const taskName in tasks) {
-    totalTasks++;
-    const task = tasks[taskName];
-    if (task.completed) completedTasks++;
-    if (task.pending && !task.completed) pendingTasksCount++;
-
-    const taskDiv = document.createElement('div');
-    taskDiv.className = 'flex justify-between items-center p-2 bg-pink-100 rounded';
-    taskDiv.innerHTML = `
-      <span>${taskName} (${task.points} điểm)</span>
-      <span class="${task.completed ? 'text-green-600' : task.pending ? 'text-yellow-600' : 'text-gray-600'}">
-        ${task.completed ? 'Đã hoàn thành' : task.pending ? 'Chờ phê duyệt' : 'Chưa hoàn thành'}
-      </span>
-    `;
-    allTasksDiv.appendChild(taskDiv);
-
-    if (task.pending && !task.completed) {
-      const pendingDiv = document.createElement('div');
-      pendingDiv.className = 'flex justify-between items-center p-2 bg-yellow-100 rounded';
-      pendingDiv.innerHTML = `
-        <span>${taskName} (${task.points} điểm)</span>
-        <div>
-          <button onclick="approveTask('${taskName}')" class="bg-green-600 text-white px-2 py-1 rounded mr-2 hover:bg-green-700">Phê duyệt</button>
-          <button onclick="rejectTask('${taskName}')" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Từ chối</button>
-        </div>
-      `;
-      pendingTasksDiv.appendChild(pendingDiv);
-    }
-  }
-
-  totalTasksSpan.textContent = totalTasks;
-  completedTasksSpan.textContent = completedTasks;
-  pendingTasksSpan.textContent = pendingTasksCount;
-}
-
-function approveTask(taskName) {
-  if (tasks[taskName]) {
-    tasks[taskName].pending = false;
-    tasks[taskName].completed = true;
-    totalPoints += tasks[taskName].points;
-    saveData();
-    updateAdminDashboard();
-    refreshPoints();
-    showNotification(`Đã phê duyệt nhiệm vụ: ${taskName}`, 'success');
-  }
-}
-
-function rejectTask(taskName) {
-  if (tasks[taskName]) {
-    tasks[taskName].pending = false;
-    saveData();
-    updateAdminDashboard();
-    refreshPoints();
-    showNotification(`Đã từ chối nhiệm vụ: ${taskName}`, 'error');
-  }
-}
-
-function updatePoints() {
-  const newPoints = parseInt(document.getElementById('new-points').value);
-  if (!isNaN(newPoints) && newPoints >= 0) {
-    totalPoints = newPoints;
-    saveData();
-    updateAdminDashboard();
-    refreshPoints();
-    showNotification('Đã cập nhật điểm thành công!', 'success');
-  } else {
-    showNotification('Vui lòng nhập số điểm hợp lệ!', 'error');
-  }
-}
-
-function resetTasks() {
-  for (const key in tasks) {
-    tasks[key].completed = false;
-    tasks[key].pending = false;
-  }
-  localStorage.setItem('lastTaskDate', new Date().toISOString().slice(0, 10));
-  saveData();
-  updateAdminDashboard();
-  refreshPoints();
-  showNotification('Đã reset tất cả nhiệm vụ!', 'success');
-}
-
-function refreshAdminTasks() {
-  tasks = JSON.parse(localStorage.getItem('tasks')) || tasks;
-  totalPoints = parseInt(localStorage.getItem('totalPoints')) || totalPoints;
-  updateAdminDashboard();
-  refreshPoints();
-  showNotification('Đã làm mới dữ liệu!', 'success');
-}
-
-function updateClock() {
-  const now = new Date();
-  const clock = document.getElementById('clock');
-  if (clock) clock.textContent = now.toLocaleTimeString('vi-VN');
-}
-
-function updateDaysTogether() {
-  const startDate = new Date('2024-08-10');
-  const now = new Date();
-  const diffTime = Math.abs(now - startDate);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const daysTogether = document.getElementById('days-together');
-  if (daysTogether) {
-    daysTogether.innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
-  }
-}
-
-function toggleStoreMore() {
-  const storeMore = document.getElementById('store-more');
-  if (storeMore) storeMore.classList.toggle('hidden');
-}
-
-function resetTasksIfNewDay() {
-  const today = new Date().toISOString().slice(0, 10);
-  const lastDate = localStorage.getItem('lastTaskDate');
-  if (lastDate !== today) {
-    for (const key in tasks) {
-      tasks[key].completed = false;
-      tasks[key].pending = false;
-    }
-    localStorage.setItem('lastTaskDate', today);
-    saveData();
-  }
-}
-
 function completeTask(taskName, auto = false) {
   resetTasksIfNewDay();
   if (tasks[taskName].completed) {
     document.getElementById('main-page').classList.add('hidden');
     document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
-    document.getElementById('task-success-desc').textContent = '';
+    document.getElementById('task-success-desc').textContent = 'Nhiệm vụ này đã được hoàn thành hôm nay!';
     document.getElementById('task-success-page').classList.remove('hidden');
     setTimeout(() => {
       document.getElementById('task-success-page').classList.add('hidden');
@@ -257,39 +90,43 @@ function completeTask(taskName, auto = false) {
     }, 2000);
     return;
   }
-  if (tasks[taskName].pending) {
-    document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
-    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
-    document.getElementById('task-success-page').classList.remove('hidden');
-    setTimeout(() => {
-      document.getElementById('task-success-page').classList.add('hidden');
-      document.getElementById('main-page').classList.remove('hidden');
-    }, 2000);
-    return;
-  }
-  
-  tasks[taskName].pending = true;
-  saveData();
-  
-  if (auto && taskName === 'Đăng Nhập') {
-    tasks[taskName].pending = false;
+
+  if (taskName === 'Nói iu ank') {
+    window.open('https://docs.google.com/forms/u/0/d/e/1FAIpQLSeO60DnOsPqlgpSXoori1A8PIjzYnDqM77cWk3UQgDb8xDD9Q/formResponse', '_blank');
     tasks[taskName].completed = true;
     totalPoints += tasks[taskName].points;
-    document.getElementById('total-points').textContent = totalPoints;
     saveData();
+    refreshPoints();
     document.getElementById('main-page').classList.add('hidden');
     document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
-    document.getElementById('task-success-desc').textContent = '';
+    document.getElementById('task-success-desc').textContent = 'Đã gửi lời yêu thương!';
     document.getElementById('task-success-page').classList.remove('hidden');
     setTimeout(() => {
       document.getElementById('task-success-page').classList.add('hidden');
       document.getElementById('main-page').classList.remove('hidden');
     }, 2000);
-  } else {
+  } else if (taskName === 'Không bỏ bữa') {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSdjCAh5IYXh4uPKK8VpaTdN-rWmfp4rBEOc-XBtI0KNYndCSg/viewform?usp=dialog', '_blank');
+    tasks[taskName].completed = true;
+    totalPoints += tasks[taskName].points;
+    saveData();
+    refreshPoints();
     document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('task-success-title').textContent = 'Chưa hoàn thành';
-    document.getElementById('task-success-desc').textContent = 'Đang gửi yêu cầu phê duyệt...';
+    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+    document.getElementById('task-success-desc').textContent = 'Đã ghi nhận bữa ăn!';
+    document.getElementById('task-success-page').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('task-success-page').classList.add('hidden');
+      document.getElementById('main-page').classList.remove('hidden');
+    }, 2000);
+  } else if (taskName === 'Ngoan - Xink - Iu' || auto) {
+    tasks[taskName].completed = true;
+    totalPoints += tasks[taskName].points;
+    saveData();
+    refreshPoints();
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('task-success-title').textContent = 'Đã hoàn thành!';
+    document.getElementById('task-success-desc').textContent = taskName === 'Ngoan - Xink - Iu' ? 'Bé ngoan lắm nè!' : '';
     document.getElementById('task-success-page').classList.remove('hidden');
     setTimeout(() => {
       document.getElementById('task-success-page').classList.add('hidden');
@@ -315,20 +152,49 @@ function refreshPoints() {
         btn.disabled = true;
         btn.classList.add('bg-gray-400', 'cursor-not-allowed');
         btn.classList.remove('bg-pink-600', 'hover:bg-pink-700');
-      } else if (task.pending) {
-        btn.textContent = 'Chờ phê duyệt';
-        btn.disabled = true;
-        btn.classList.add('bg-yellow-400', 'cursor-wait');
-        btn.classList.remove('bg-pink-600', 'hover:bg-pink-700');
       } else {
         btn.textContent = 'Hoàn thành';
         btn.disabled = false;
-        btn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'bg-yellow-400', 'cursor-wait');
+        btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
         btn.classList.add('bg-pink-600', 'hover:bg-pink-700');
       }
     }
     i++;
   }
+}
+
+function resetTasksIfNewDay() {
+  const today = new Date().toISOString().slice(0, 10);
+  const lastDate = localStorage.getItem('lastTaskDate');
+  if (lastDate !== today) {
+    for (const key in tasks) {
+      tasks[key].completed = false;
+    }
+    localStorage.setItem('lastTaskDate', today);
+    saveData();
+  }
+}
+
+function updateClock() {
+  const now = new Date();
+  const clock = document.getElementById('clock');
+  if (clock) clock.textContent = now.toLocaleTimeString('vi-VN');
+}
+
+function updateDaysTogether() {
+  const startDate = new Date('2024-08-10');
+  const now = new Date();
+  const diffTime = Math.abs(now - startDate);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const daysTogether = document.getElementById('days-together');
+  if (daysTogether) {
+    daysTogether.innerHTML = `Đã bên nhau được <span class='font-bold text-pink-600'>${diffDays}</span> ngày`;
+  }
+}
+
+function toggleStoreMore() {
+  const storeMore = document.getElementById('store-more');
+  if (storeMore) storeMore.classList.toggle('hidden');
 }
 
 function createFallingHeart() {
